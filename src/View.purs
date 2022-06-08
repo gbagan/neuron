@@ -93,7 +93,7 @@ drawLine i j =
     ,   P.x1 $ if layer == 0 then 15.0 else if layer == 1 then 60.0 else 105.0
     ,   P.x2 $ if layer' == 0 then 15.0 else if layer' == 1 then 60.0 else 105.0
     ,   P.strokeWidth 0.5
-    ,   P.stroke "black"
+    ,   P.stroke "grey"
     ]
 
 drawInputLine :: forall a. Int -> Html a
@@ -104,7 +104,7 @@ drawInputLine i =
     ,   P.x1 0.0
     ,   P.x2 15.0
     ,   P.strokeWidth 0.5
-    ,   P.stroke "black"
+    ,   P.stroke "grey"
     ]
 
 drawOutputLine :: forall a. Int -> Html a
@@ -115,7 +115,7 @@ drawOutputLine i =
     ,   P.x1 105.0
     ,   P.x2 120.0
     ,   P.strokeWidth 0.5
-    ,   P.stroke "black"
+    ,   P.stroke "grey"
     ]    
 
 view :: Model -> Html Msg
@@ -123,7 +123,9 @@ view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, v
     H.div [H.class_ "layout"]
     [   H.div [H.class_ "row"]
         [   H.div [H.class_ "col-6"]
-            [   H.button [E.onClick \_ -> OpenPatternEditor true] [H.text "Modifier le motif"]
+            [   H.button [H.class_ "ui-button", E.onClick \_ -> OpenPatternEditor true]
+                [   H.text "Modifier le motif"
+                ]
             ,   H.div [] $
                     patterns # mapWithIndex \i -> drawPattern i (selectedPattern == i) selectedInput
             ,   H.maybe (neurons !! selectedNeuron) case _ of
@@ -131,11 +133,11 @@ view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, v
                     Neuron {coeffs, threshold} ->
                         H.div [] $
                         [   H.text $ "Seuil: "
-                        ,   H.input [P.type_ "number", P.value (show threshold), E.onValueChange ChangeThreshold]
+                        ,   H.input [P.type_ "number", P.value (show threshold), P.min 0, E.onValueChange ChangeThreshold]
                         ,   H.br
                         ] <> (concat $ coeffs # mapWithIndex \i {coeff} ->
                             [   H.text $ "Coeff " <> show (i + 1) <> ": "
-                            ,   H.input [P.type_ "number", P.value (show coeff), E.onValueChange (ChangeCoeff i)]
+                            ,   H.input [P.type_ "number", P.value (show coeff), P.min (-9), P.max 9, E.onValueChange (ChangeCoeff i)]
                             ,   H.br
                             ]
                         )
@@ -191,9 +193,9 @@ view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, v
                         ,   H.g [] $
                                 coeffs # mapWithIndex \j {coeff} ->
                                     H.text_ ("×" <> show coeff) 
-                                    [   P.x (-7.0)
+                                    [   P.x (-8.0)
                                     ,   P.y (Int.toNumber j * 3.0)
-                                    ,   H.attr "font-size" "0.2rem"
+                                    ,   H.attr "font-size" "0.18rem"
                                     ,   H.attr "pointer-events" "none"
                                     ]
                         ,   H.when (layer == 2) \_ ->
