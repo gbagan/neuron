@@ -1,8 +1,14 @@
-# Dependencies
-.psci_modules
-bower_components
-node_modules
-
-# Generated files
-.psci
-output
+/node_modules/
+/.pulp-cache/
+/output/
+/dce-output/
+/generated-docs/
+/package-lock.json
+/.psc-package/
+/.psc*
+/.purs*
+/.psa*
+/.spago/
+/bundle.*
+/yarn*
+/dist/bundle.*
