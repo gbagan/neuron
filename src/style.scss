@@ -106,7 +106,7 @@ a {
 
 
 
-.drawing {
+.pattern {
     margin: 6px auto;
     overflow: hidden;
     border-color: #bdc3c7;
@@ -119,7 +119,7 @@ a {
     }
 }
 
-.drawing-pixel {
+.pattern-pixel {
     position: absolute;
     background: white;
     &.black {
@@ -143,7 +143,7 @@ a {
     transform: translate(-40px, -40px);
 }
 
-.drawing-editor {
+.pattern-editor {
     margin: 6px auto;
     overflow: hidden;
     border-color: #bdc3c7;
