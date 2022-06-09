@@ -21,10 +21,18 @@ type Edge
 
 data Neuron = Input Int | Neuron { coeffs :: Array Edge, threshold :: Int }
 
-_neuron :: Prism' Neuron { coeffs :: Array Edge, threshold :: Int }
-_neuron = prism' Neuron case _ of
+_Neuron :: Prism' Neuron { coeffs :: Array Edge, threshold :: Int }
+_Neuron = prism' Neuron case _ of
   Neuron e -> Just e
   _ -> Nothing
+
+data ThresholdRule = StandardRule | BooleanRule
+
+derive instance Eq ThresholdRule
+
+thresholdRuleToString :: ThresholdRule -> String
+thresholdRuleToString StandardRule = "standard"
+thresholdRuleToString BooleanRule = "bool"
 
 type Model
   = { patterns :: Array Pattern
@@ -34,6 +42,7 @@ type Model
     , selectedInput :: Maybe Int
     , selectedNeuron :: Int
     , editorOpen :: Boolean
+    , thresholdRule :: ThresholdRule
     }
 
 patternA :: Array Boolean
@@ -111,6 +120,7 @@ init =
   , selectedInput: Nothing
   , selectedNeuron: 6
   , editorOpen: false
+  , thresholdRule: StandardRule
   } # simulate
 
 countPixels :: Int -> Pattern -> Int
@@ -123,7 +133,7 @@ countPixels i =
   )
 
 simulate :: Model -> Model
-simulate model@{patterns, selectedPattern, neurons} = model { values = force <$> values }
+simulate model@{patterns, selectedPattern, neurons, thresholdRule} = model { values = force <$> values }
   where
     values =
       neurons # mapWithIndex \i neuron -> defer \_ ->
@@ -133,7 +143,12 @@ simulate model@{patterns, selectedPattern, neurons} = model { values = force <$>
             let
               s = sum $ coeffs <#> \{from, coeff} -> coeff * maybe 0 force (values !! from)
             in
-              if s >= threshold then s else 0
+              if s < threshold then
+                0
+              else if thresholdRule == StandardRule then
+                s
+              else
+                1
     pattern = fromMaybe [] $ patterns !! selectedPattern
   
 
@@ -146,6 +161,7 @@ data Msg
   | OpenPatternEditor Boolean
   | ChangePixel Int
   | ResetPattern
+  | SetThresholdRule String
 
 update :: Msg -> Model -> Model
 update msg model = case msg of
@@ -156,14 +172,14 @@ update msg model = case msg of
                       Nothing -> model
                       Just val ->
                         simulate $ model # 
-                        (prop (Proxy ∷ _ "neurons") <<< ix model.selectedNeuron <<< _neuron
+                        (prop (Proxy ∷ _ "neurons") <<< ix model.selectedNeuron <<< _Neuron
                         <<< prop (Proxy :: _ "coeffs") <<< ix i <<< prop (Proxy :: _ "coeff")
                         ) .~ val
   ChangeThreshold s -> case Int.fromString s of
                       Nothing -> model
                       Just val ->
                         simulate $ model # 
-                        (prop (Proxy ∷ _ "neurons") <<< ix model.selectedNeuron <<< _neuron
+                        (prop (Proxy ∷ _ "neurons") <<< ix model.selectedNeuron <<< _Neuron
                           <<< prop (Proxy :: _ "threshold")
                         ) .~ val
   OpenPatternEditor b -> model{editorOpen = b}
@@ -174,3 +190,7 @@ update msg model = case msg of
                       1 -> patternB
                       2 -> patternC
                       _ -> patternD
+  SetThresholdRule s -> case s of
+    "standard" -> simulate $ model{thresholdRule = StandardRule}
+    "bool" -> simulate $ model{thresholdRule = BooleanRule}
+    _ -> model

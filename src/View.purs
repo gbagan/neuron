@@ -8,13 +8,17 @@ import Prelude
 import Data.Array ((..), (!!), concat, mapWithIndex)
 import Data.Int as Int
 import Data.Maybe (Maybe(..))
-import Neuron.Model (Pattern, Model, Msg(..), Neuron(..))
+import Effect (Effect)
+import Neuron.Model (Pattern, Model, Msg(..), Neuron(..), thresholdRuleToString)
 import Neuron.Util (map2)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
+import Web.Event.Event (Event)
+
+foreign import slStringValue ∷ Event → Effect String
 
 showEditor :: Model -> Html Msg
 showEditor {patterns, selectedPattern} =
@@ -25,15 +29,13 @@ showEditor {patterns, selectedPattern} =
             ]
         ,   H.div [H.class_ "ui-dialog-body"] [body]
         ,   H.div [H.class_ "ui-dialog-buttons"] 
-            [   H.button 
-                [   H.class_ "ui-button ui-button-primary"
-                ,   E.onClick \_ -> ResetPattern
+            [   H.elem "sl-button" 
+                [   E.onClick \_ -> ResetPattern
                 ]
                 [   H.text "Réinitialiser"
                 ]
-            ,   H.button
-                [   H.class_ "ui-button ui-button-primary"
-                ,   E.onClick \_ -> OpenPatternEditor false
+            ,   H.elem "sl-button"
+                [   E.onClick \_ -> OpenPatternEditor false
                 ]
                 [   H.text "Ok"
                 ]
@@ -119,11 +121,11 @@ drawOutputLine i =
     ]    
 
 view :: Model -> Html Msg
-view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, values, editorOpen} =
+view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, values, editorOpen, thresholdRule} =
     H.div [H.class_ "layout"]
     [   H.div [H.class_ "row"]
         [   H.div [H.class_ "col-6"]
-            [   H.button [H.class_ "ui-button", E.onClick \_ -> OpenPatternEditor true]
+            [   H.elem "sl-button" [E.onClick \_ -> OpenPatternEditor true]
                 [   H.text "Modifier le motif"
                 ]
             ,   H.div [] $
@@ -131,14 +133,31 @@ view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, v
             ,   H.maybe (neurons !! selectedNeuron) case _ of
                     Input _ -> H.empty
                     Neuron {coeffs, threshold} ->
-                        H.div [] $
-                        [   H.text $ "Seuil: "
-                        ,   H.input [P.type_ "number", P.value (show threshold), P.min 0, E.onValueChange ChangeThreshold]
-                        ,   H.br
+                        H.div [H.class_ "config-main"] $
+                        [   H.div [] [ H.text "Règle pour le seuil" ]
+                        ,   H.elem "sl-select"
+                            [   P.value (thresholdRuleToString thresholdRule)
+                            ,   E.on "sl-change" \ev → Just <$> SetThresholdRule <$> slStringValue ev
+                            ]
+                            [   H.elem "sl-menu-item" [ P.value "standard" ] [ H.text "Standard" ]
+                            ,   H.elem "sl-menu-item" [ P.value "bool" ] [ H.text "Booléen" ]
+                            ]
+                        ,   H.div [] [H.text $ "Seuil: "]
+                        ,   H.elem "sl-input"
+                            [   P.type_ "number"
+                            ,   P.value (show threshold)
+                            ,   P.min 0
+                            ,   E.on "sl-change" \ev → Just <$> ChangeThreshold <$> slStringValue ev
+                            ] []
                         ] <> (concat $ coeffs # mapWithIndex \i {coeff} ->
-                            [   H.text $ "Coeff " <> show (i + 1) <> ": "
-                            ,   H.input [P.type_ "number", P.value (show coeff), P.min (-9), P.max 9, E.onValueChange (ChangeCoeff i)]
-                            ,   H.br
+                            [   H.div [] [H.text $ "Coeff " <> show (i + 1) <> ": "]
+                            ,   H.elem "sl-input"
+                                [   P.type_ "number"
+                                ,   P.value (show coeff)
+                                ,   P.min (-9)
+                                ,   P.max 9
+                                ,   E.on "sl-change" \ev → Just <$> ChangeCoeff i <$> slStringValue ev
+                                ] []
                             ]
                         )
             ]

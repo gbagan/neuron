@@ -9,6 +9,7 @@
   , "pha"
   , "prelude"
   , "profunctor-lenses"
+  , "web-events"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]

@@ -12,3 +12,4 @@
 /bundle.*
 /yarn*
 /dist/bundle.*
+/dist/shoelace.js
