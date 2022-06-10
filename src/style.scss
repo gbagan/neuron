@@ -173,7 +173,14 @@ a {
     }
 }
 
+
 .config-main {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1em;
+}
+
+.pattern-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1em;

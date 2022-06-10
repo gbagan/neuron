@@ -128,7 +128,7 @@ view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, v
             [   H.elem "sl-button" [E.onClick \_ -> OpenPatternEditor true]
                 [   H.text "Modifier le motif"
                 ]
-            ,   H.div [] $
+            ,   H.div [H.class_ "pattern-container"] $
                     patterns # mapWithIndex \i -> drawPattern i (selectedPattern == i) selectedInput
             ,   H.maybe (neurons !! selectedNeuron) case _ of
                     Input _ -> H.empty
