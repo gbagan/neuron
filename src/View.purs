@@ -218,7 +218,7 @@ view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, v
                                     ,   H.attr "pointer-events" "none"
                                     ]
                         ,   H.when (layer == 2) \_ ->
-                                if value >= threshold then
+                                if value > 0 then
                                     H.text_ "✓"
                                     [   P.x 20.0
                                     ,   H.attr "font-size" "0.4rem"

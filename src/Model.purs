@@ -143,10 +143,10 @@ simulate model@{patterns, selectedPattern, neurons, thresholdRule} = model { val
             let
               s = sum $ coeffs <#> \{from, coeff} -> coeff * maybe 0 force (values !! from)
             in
-              if s < threshold then
+              if thresholdRule == StandardRule then
+                max 0 (s - threshold)
+              else if s <= threshold then
                 0
-              else if thresholdRule == StandardRule then
-                s
               else
                 1
     pattern = fromMaybe [] $ patterns !! selectedPattern
