@@ -1,1 +1,0 @@
-export const slStringValue = ev => () => ev.currentTarget.value

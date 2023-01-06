@@ -2,7 +2,7 @@ module Neuron.Model where
 
 import Prelude
 
-import Data.Array ((!!), length, filter, mapWithIndex)
+import Data.Array ((!!), mapWithIndex)
 import Data.Foldable (sum)
 import Data.Int as Int
 import Data.Lazy (defer, force)
@@ -10,9 +10,16 @@ import Data.Lens (Prism', (.~), (%~), prism')
 import Data.Lens.Index (ix)
 import Data.Lens.Record (prop)
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.Number (exp)
 import Type.Proxy (Proxy(..))
+import Neuron.Util (count)
 
-type Pattern = Array Boolean
+step :: Number
+step = 0.0001 -- le pas dans le flot gradient
+coef :: Number
+coef = 0.7 -- coef dans la fonction de coût d'erreur qui est une fonction exponentielle
+
+type Pattern = {symbol :: Int, pattern :: Array Boolean, selected :: Boolean}
 
 type Edge 
   = { from :: Int
@@ -26,23 +33,14 @@ _Neuron = prism' Neuron case _ of
   Neuron e -> Just e
   _ -> Nothing
 
-data ThresholdRule = StandardRule | BooleanRule
-
-derive instance Eq ThresholdRule
-
-thresholdRuleToString :: ThresholdRule -> String
-thresholdRuleToString StandardRule = "standard"
-thresholdRuleToString BooleanRule = "bool"
-
 type Model
   = { patterns :: Array Pattern
     , neurons :: Array Neuron
     , values :: Array Int
-    , selectedPattern :: Int
+    , currentPattern :: Int
     , selectedInput :: Maybe Int
     , selectedNeuron :: Int
     , editorOpen :: Boolean
-    , thresholdRule :: ThresholdRule
     }
 
 patternA :: Array Boolean
@@ -99,7 +97,35 @@ patternD =
 
 init :: Model
 init =
-  { patterns: [ patternA, patternB, patternC, patternD ]
+  { patterns:
+    [ {symbol: 0, pattern: patternA, selected: true}
+    , {symbol: 0, pattern: patternA, selected: false}
+    , {symbol: 0, pattern: patternA, selected: false}
+    , {symbol: 0, pattern: patternA, selected: false}
+    , {symbol: 0, pattern: patternA, selected: false}
+    , {symbol: 0, pattern: patternA, selected: false}
+
+    , {symbol: 1, pattern: patternB, selected: true}
+    , {symbol: 1, pattern: patternB, selected: false}
+    , {symbol: 1, pattern: patternB, selected: false}
+    , {symbol: 1, pattern: patternB, selected: false}
+    , {symbol: 1, pattern: patternB, selected: false}
+    , {symbol: 1, pattern: patternB, selected: false}
+
+    , {symbol: 2, pattern: patternC, selected: true}
+    , {symbol: 2, pattern: patternC, selected: false}
+    , {symbol: 2, pattern: patternC, selected: false}
+    , {symbol: 2, pattern: patternC, selected: false}
+    , {symbol: 2, pattern: patternC, selected: false}
+    , {symbol: 2, pattern: patternC, selected: false}
+
+    , {symbol: 3, pattern: patternD, selected: true}
+    , {symbol: 3, pattern: patternD, selected: false}
+    , {symbol: 3, pattern: patternD, selected: false}
+    , {symbol: 3, pattern: patternD, selected: false}
+    , {symbol: 3, pattern: patternD, selected: false}
+    , {symbol: 3, pattern: patternD, selected: false}
+    ]
   , neurons :
     [ Input 0, Input 1, Input 2, Input 3, Input 4, Input 5 
     
@@ -116,41 +142,40 @@ init =
     , Neuron {coeffs: [ {from: 8, coeff: 1}, {from: 10, coeff: 1}, {from: 11, coeff: 1} ], threshold: 1}
     ]
   , values: []
-  , selectedPattern: 0
+  , currentPattern: 0
   , selectedInput: Nothing
   , selectedNeuron: 6
   , editorOpen: false
-  , thresholdRule: StandardRule
   } # simulate
 
-countPixels :: Int -> Pattern -> Int
+indexPattern :: Array Pattern -> Int -> Pattern
+indexPattern ps i = fromMaybe {selected: false, symbol: 0, pattern: []} $ ps !! i
+
+countPixels :: Int -> Array Boolean -> Int
 countPixels i =
-  length <<< filter identity <<< mapWithIndex (\j b -> 
+  count identity <<< mapWithIndex (\j b -> 
     let row = j `div` 27
         col = (j `mod` 9) `div` 3
     in
     b && if i < 3 then row == i else col == i - 3
   )
 
+cost :: Number -> Number -> Boolean -> Number
+cost x a true = -a * exp (-a * x)
+cost x a false = a * exp (a * x)
+
 simulate :: Model -> Model
-simulate model@{patterns, selectedPattern, neurons, thresholdRule} = model { values = force <$> values }
-  where
-    values =
-      neurons # mapWithIndex \i neuron -> defer \_ ->
-        case neuron of
-          Input _ -> countPixels i pattern
-          Neuron {coeffs, threshold} ->
-            let
-              s = sum $ coeffs <#> \{from, coeff} -> coeff * maybe 0 force (values !! from)
-            in
-              if thresholdRule == StandardRule then
+simulate model@{patterns, currentPattern, neurons} = model { values = force <$> values }
+    where
+      {pattern} = indexPattern patterns currentPattern
+      values = neurons <#> \neuron -> defer \_ ->
+          case neuron of
+            Input i -> countPixels i pattern
+            Neuron {coeffs, threshold} ->
+              let
+                s = sum $ coeffs <#> \{from, coeff} -> coeff * maybe 0 force (values !! from)
+              in
                 max 0 (s - threshold)
-              else if s <= threshold then
-                0
-              else
-                1
-    pattern = fromMaybe [] $ patterns !! selectedPattern
-  
 
 data Msg
   = SelectInput (Maybe Int)
@@ -161,12 +186,11 @@ data Msg
   | OpenPatternEditor Boolean
   | ChangePixel Int
   | ResetPattern
-  | SetThresholdRule String
 
 update :: Msg -> Model -> Model
 update msg model = case msg of
   SelectInput i -> model{selectedInput = i}
-  SelectPattern i -> simulate $ model{selectedPattern = i}
+  SelectPattern i -> simulate $ model{currentPattern = i}
   SelectNeuron i -> model{selectedNeuron = i}
   ChangeCoeff i s -> case Int.fromString s of
                       Nothing -> model
@@ -183,14 +207,13 @@ update msg model = case msg of
                           <<< prop (Proxy :: _ "threshold")
                         ) .~ val
   OpenPatternEditor b -> model{editorOpen = b}
-  ChangePixel i -> simulate $ model # (prop (Proxy ∷ _ "patterns") <<< ix model.selectedPattern <<< ix i) %~ not
-  ResetPattern -> simulate $ model # (prop (Proxy ∷ _ "patterns") <<< ix model.selectedPattern) .~
-                    case model.selectedPattern of
+  ChangePixel i -> simulate $ model # (prop (Proxy ∷ _ "patterns") 
+                                        <<< ix model.currentPattern 
+                                        <<< prop (Proxy :: _ "pattern")
+                                        <<< ix i) %~ not
+  ResetPattern -> simulate $ model # (prop (Proxy ∷ _ "patterns") <<< ix model.currentPattern <<< prop (Proxy :: _ "pattern")) .~
+                    case model.currentPattern of
                       0 -> patternA
                       1 -> patternB
                       2 -> patternC
                       _ -> patternD
-  SetThresholdRule s -> case s of
-    "standard" -> simulate $ model{thresholdRule = StandardRule}
-    "bool" -> simulate $ model{thresholdRule = BooleanRule}
-    _ -> model

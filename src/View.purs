@@ -1,41 +1,42 @@
-module Neuron.View
-  ( view
-  )
-  where
+module Neuron.View (view) where
 
 import Prelude
 
 import Data.Array ((..), (!!), concat, mapWithIndex)
 import Data.Int as Int
 import Data.Maybe (Maybe(..))
-import Effect (Effect)
-import Neuron.Model (Pattern, Model, Msg(..), Neuron(..), thresholdRuleToString)
+import Neuron.Model (Model, Msg(..), Neuron(..), Pattern, indexPattern)
 import Neuron.Util (map2)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
-import Web.Event.Event (Event)
 
-foreign import slStringValue ∷ Event → Effect String
+buttonClass :: String
+buttonClass = "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+
+inputRange :: String
+inputRange = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 
 showEditor :: Model -> Html Msg
-showEditor {patterns, selectedPattern} =
-    H.div [H.class_ "absolute flex-center ui-dialog-container"]
-    [   H.div [H.class_ "ui-dialog"]
-        [   H.div [H.class_ "ui-dialog-head"]
-            [   H.div [H.class_ "ui-dialog-title"] [H.text "Modifier le motif"]
+showEditor {patterns, currentPattern} =
+    H.div [H.class_ "absolute w-full h-full flex items-center justify-center bg-transp-grey inset-0 z-50"]
+    [   H.div [H.class_ "bg-white rounded"]
+        [   H.div [H.class_ "ui-dialog-head p-4 min-h-8"]
+            [   H.div [H.class_ "text-2xl font-medium inline-block"] [H.text "Modifier le motif"]
             ]
-        ,   H.div [H.class_ "ui-dialog-body"] [body]
-        ,   H.div [H.class_ "ui-dialog-buttons"] 
-            [   H.elem "sl-button" 
-                [   E.onClick \_ -> ResetPattern
+        ,   H.div [H.class_ "p-6"] [body]
+        ,   H.div [H.class_ "ui-dialog-buttons"]
+            [   H.button 
+                [   H.class_ buttonClass
+                ,   E.onClick \_ -> ResetPattern
                 ]
                 [   H.text "Réinitialiser"
                 ]
-            ,   H.elem "sl-button"
-                [   E.onClick \_ -> OpenPatternEditor false
+            ,   H.button
+                [   H.class_ buttonClass
+                ,   E.onClick \_ -> OpenPatternEditor false
                 ]
                 [   H.text "Ok"
                 ]
@@ -43,14 +44,22 @@ showEditor {patterns, selectedPattern} =
         ]
     ]
     where
-    body = H.maybe (patterns !! selectedPattern) \pattern ->
+    body =
+        H.div [H.class_ "flex flex-row items-center gap-8"]
+        [   editor
+        ,   H.div [H.class_ "grid grid-cols-6 gap-2"] $
+                patterns # mapWithIndex \i pattern ->
+                    drawMiniPattern i false pattern
+        ]
+
+    editor = H.maybe (patterns !! currentPattern) \{pattern} ->
         H.div [H.class_ "pattern-editor"] $
             pattern # mapWithIndex \i b ->
                 let row = i `div` 9
                     col = i `mod` 9
                 in
                 H.div
-                [   H.class_ "pattern-pixel" 
+                [   H.class_ "absolute pattern-pixel"
                 ,   H.class' "black" b
                 ,   H.style "width" "11.1111111111%"
                 ,   H.style "height" "11.1111111111%"
@@ -60,20 +69,17 @@ showEditor {patterns, selectedPattern} =
                 ] []
 
 
-drawPattern :: Int -> Boolean -> Maybe Int -> Pattern -> Html Msg
-drawPattern index selected selectedCaptor  bmap =
-    H.div
-    [   H.class_ "pattern"
-    ,   H.class' "selected" selected
-    ,   E.onClick \_ -> SelectPattern index
-    ] $
-        bmap # mapWithIndex \i b->
+
+drawPattern :: Maybe Int -> Pattern -> Html Msg
+drawPattern selectedCaptor {pattern} =
+    H.div [H.class_ "overflow-hidden relative border-4 border-slate-400 m-2 w-80 h-80"] $
+        pattern # mapWithIndex \i b ->
             let row = i `div` 9
                 col = i `mod` 9
-                capt = selected && (Just (row `div` 3) == selectedCaptor || Just (col `div` 3 + 3) == selectedCaptor) 
+                capt = Just (row `div` 3) == selectedCaptor || Just (col `div` 3 + 3) == selectedCaptor 
             in
             H.div
-            [   H.class_ "pattern-pixel"
+            [   H.class_ "absolute pattern-pixel"
             ,   H.class' "black" b
             ,   H.class' "selected" capt
             ,   H.style "width" "11.1111111111%"
@@ -81,6 +87,26 @@ drawPattern index selected selectedCaptor  bmap =
             ,   H.style "left" $ pc $ Int.toNumber col / 9.0
             ,   H.style "top" $ pc $ Int.toNumber row / 9.0
             ] []
+
+drawMiniPattern :: Int -> Boolean -> Pattern -> Html Msg
+drawMiniPattern index current {pattern} =
+    H.div
+    [   H.class_ "overflow-hidden relative border-4 border-slate-400 m-2 w-32 h-32"
+    ,   H.class' "current" current
+    ,   E.onClick \_ -> SelectPattern index
+    ] $
+        pattern # mapWithIndex \i b ->
+            let row = i `div` 9
+                col = i `mod` 9
+            in
+            H.div
+            [   H.class_ "absolute pattern-pixel"
+            ,   H.class' "black" b
+            ,   H.style "width" "11.1111111111%"
+            ,   H.style "height" "11.1111111111%"
+            ,   H.style "left" $ pc $ Int.toNumber col / 9.0
+            ,   H.style "top" $ pc $ Int.toNumber row / 9.0
+            ] []            
 
 drawLine :: forall a. Int -> Int -> Html a
 drawLine i j =
@@ -121,47 +147,42 @@ drawOutputLine i =
     ]    
 
 view :: Model -> Html Msg
-view model@{patterns, neurons, selectedPattern, selectedInput, selectedNeuron, values, editorOpen, thresholdRule} =
-    H.div [H.class_ "layout"]
-    [   H.div [H.class_ "row"]
-        [   H.div [H.class_ "col-6"]
-            [   H.elem "sl-button" [E.onClick \_ -> OpenPatternEditor true]
+view model@{patterns, neurons, currentPattern, selectedInput, selectedNeuron, values, editorOpen} =
+    H.div [H.class_ "w-full min-h-full"]
+    [   H.div [H.class_ "flex flew-row"]
+        [   H.div [H.class_ "w-1/4"]
+            [   H.button [H.class_ buttonClass, E.onClick \_ -> OpenPatternEditor true]
                 [   H.text "Modifier le motif"
                 ]
-            ,   H.div [H.class_ "pattern-container"] $
-                    patterns # mapWithIndex \i -> drawPattern i (selectedPattern == i) selectedInput
+            ,   H.div [H.class_ "pattern-container"] [
+                    drawPattern selectedInput (indexPattern patterns currentPattern)
+                ]
             ,   H.maybe (neurons !! selectedNeuron) case _ of
                     Input _ -> H.empty
                     Neuron {coeffs, threshold} ->
                         H.div [H.class_ "config-main"] $
-                        [   H.div [] [ H.text "Règle pour le seuil" ]
-                        ,   H.elem "sl-select"
-                            [   P.value (thresholdRuleToString thresholdRule)
-                            ,   E.on "sl-change" \ev → Just <$> SetThresholdRule <$> slStringValue ev
-                            ]
-                            [   H.elem "sl-menu-item" [ P.value "standard" ] [ H.text "Standard" ]
-                            ,   H.elem "sl-menu-item" [ P.value "bool" ] [ H.text "Booléen" ]
-                            ]
-                        ,   H.div [] [H.text $ "Seuil: "]
-                        ,   H.elem "sl-input"
-                            [   P.type_ "number"
+                        [   H.div [] [H.text $ "Seuil: "]
+                        ,   H.input
+                            [   H.class_ inputRange
+                            ,   P.type_ "number"
                             ,   P.value (show threshold)
                             ,   P.min 0
-                            ,   E.on "sl-change" \ev → Just <$> ChangeThreshold <$> slStringValue ev
-                            ] []
+                            ,   E.onValueChange ChangeThreshold
+                            ]
                         ] <> (concat $ coeffs # mapWithIndex \i {coeff} ->
                             [   H.div [] [H.text $ "Coeff " <> show (i + 1) <> ": "]
-                            ,   H.elem "sl-input"
-                                [   P.type_ "number"
+                            ,   H.input
+                                [   H.class_ inputRange
+                                ,   P.type_ "number"
                                 ,   P.value (show coeff)
                                 ,   P.min (-9)
                                 ,   P.max 9
-                                ,   E.on "sl-change" \ev → Just <$> ChangeCoeff i <$> slStringValue ev
-                                ] []
+                                ,   E.onValueChange (ChangeCoeff i)
+                                ]
                             ]
                         )
             ]
-        ,   H.div [H.class_ "col-24 relative"] [showNetwork]
+        ,   H.div [H.class_ "w-3/4 relative"] [showNetwork]
             
         ]
     ,   H.when editorOpen \_ -> showEditor model
