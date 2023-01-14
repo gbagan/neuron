@@ -11,7 +11,6 @@
   "scripts": {
     "clean": "rimraf output && rimraf .spago",
     "build": "spago bundle-app --minify --to dist/bundle.js",
-    "buildcss": "sass --no-source-map src/style.scss dist/bundle.css",
-    "build-shoelace": "esbuild --bundle shoelace/index.js --minify --outfile=dist/shoelace.js"
+    "buildcss": "sass --no-source-map src/style.scss dist/bundle.css"
   }
 }

@@ -1,55 +1,3 @@
-.ui-dialog {
-    padding: 0;
-    background: white;
-    border-radius: 2px;
-    border: 1px solid #e8e8e8;
-    display: block;
-}
-
-.ui-dialog-head {
-    border-bottom: 1px solid #e8e8e8;
-    padding: 1rem;
-    border-radius: 2px 2px 0 0;
-    margin-bottom: -1px;
-    min-height: 2rem;
-}
-
-.ui-dialog-title {
-    font-size: 2rem;
-    color: rgba(0, 0, 0, 0.85);
-    font-weight: 500;
-    display: inline-block;
-    flex: 1;
-}
-
-.ui-dialog-body {
-    padding: 1.5em;
-    margin-bottom: -1px;
-    border-bottom: 1px solid #e8e8e8;
-}
-
-.ui-dialog-buttons {
-    padding: 1em;
-    text-align: right;
-
-    & > button + button {
-        margin-left: 0.5em;
-    }
-}
-
-
-.config-main {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1em;
-}
-
-.pattern-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1em;
-}
-
 .pattern-pixel {
     background: white;
     &.black {
@@ -60,29 +8,5 @@
     }
     &.selected.black {
         background: darkgreen;
-    }
-}
-
-.minipattern {
-    margin: 6px auto;
-    overflow: hidden;
-    position: relative;
-    width: 135px;
-    height: 135px;
-    border: #bdc3c7 solid 4px;
-    &.selected {
-        border: green solid 4px;
-    }
-}
-
-.pattern-editor {
-    margin: 6px auto;
-    overflow: hidden;
-    position: relative;
-    width: 450px;
-    height: 450px;
-    border: #bdc3c7 solid 4px;
-    &.selected {
-        border: green solid 4px;
     }
 }

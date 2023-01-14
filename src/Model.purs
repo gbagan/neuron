@@ -2,17 +2,18 @@ module Neuron.Model where
 
 import Prelude
 
-import Data.Array ((!!), mapWithIndex)
+import Data.Array ((!!), mapWithIndex, replicate)
 import Data.Foldable (sum)
 import Data.Int as Int
+import Data.Number as Number
 import Data.Lazy (defer, force)
-import Data.Lens (Prism', (.~), (%~), prism')
+import Data.Lens (Lens', Prism', (.~), (%~), prism')
 import Data.Lens.Index (ix)
 import Data.Lens.Record (prop)
-import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.Maybe (Maybe(..), maybe)
 import Data.Number (exp)
 import Type.Proxy (Proxy(..))
-import Neuron.Util (count)
+import Neuron.Util (count, (!!!))
 
 step :: Number
 step = 0.0001 -- le pas dans le flot gradient
@@ -23,139 +24,230 @@ type Pattern = {symbol :: Int, pattern :: Array Boolean, selected :: Boolean}
 
 type Edge 
   = { from :: Int
-    , coeff :: Int
+    , coeff :: Number
     }
 
-data Neuron = Input Int | Neuron { coeffs :: Array Edge, threshold :: Int }
+data Neuron = Input Int | Neuron { coeffs :: Array Edge, threshold :: Number }
 
-_Neuron :: Prism' Neuron { coeffs :: Array Edge, threshold :: Int }
+data Dialog = EditorDialog | NeuronDialog Int | NoDialog
+
+type Value = {value :: Number, error :: Number}
+
+type State = { neurons :: Array Neuron, values :: Array (Array Value) }
+
+type Model
+  = { patterns :: Array Pattern
+    , states :: Array State
+    , currentPattern :: Int
+    , currentState :: Int
+    , selectedInput :: Maybe Int
+    , dialog :: Dialog
+    , editMode :: Boolean
+    }
+
+_patterns :: Lens' Model (Array Pattern)
+_patterns = prop (Proxy :: _ "patterns")
+
+_states :: Lens' Model (Array State)
+_states = prop (Proxy :: _ "states")
+
+_neurons :: Lens' State (Array Neuron)
+_neurons = prop (Proxy :: _ "neurons")
+
+_Neuron :: Prism' Neuron { coeffs :: Array Edge, threshold :: Number }
 _Neuron = prism' Neuron case _ of
   Neuron e -> Just e
   _ -> Nothing
 
-type Model
-  = { patterns :: Array Pattern
-    , neurons :: Array Neuron
-    , values :: Array Int
-    , currentPattern :: Int
-    , selectedInput :: Maybe Int
-    , selectedNeuron :: Int
-    , editorOpen :: Boolean
-    }
+_coeffs :: Lens' { coeffs :: Array Edge, threshold :: Number } (Array Edge)
+_coeffs = prop (Proxy :: _ "coeffs")
 
-patternA :: Array Boolean
-patternA =
-  [ 0, 0, 0, 0, 0, 0, 0, 0, 0
-  , 0, 0, 0, 0, 0, 0, 0, 0, 0
-  , 0, 0, 0, 0, 1, 1, 0, 0, 0
-  , 0, 0, 0, 0, 1, 1, 0, 0, 0
-  , 0, 0, 0, 1, 0, 0, 1, 0, 0
-  , 0, 0, 1, 1, 1, 1, 1, 0, 0
-  , 0, 0, 1, 0, 0, 0, 1, 0, 0
-  , 0, 1, 0, 0, 0, 0, 1, 0, 0
-  , 0, 0, 0, 0, 0, 0, 0, 0, 0
+_threshold :: Lens' { coeffs :: Array Edge, threshold :: Number } Number
+_threshold = prop (Proxy :: _ "threshold")
+
+pattern01 :: Array Boolean
+pattern01 =
+  [ 0, 0, 0, 0, 0, 0
+  , 0, 0, 1, 1, 1, 0
+  , 0, 1, 0, 0, 1, 1
+  , 0, 1, 0, 0, 0, 1
+  , 0, 1, 0, 0, 0, 1
+  , 0, 1, 0, 0, 0, 1
+  , 0, 1, 0, 0, 1, 1
+  , 0, 1, 0, 0, 1, 0
+  , 0, 0, 1, 1, 0, 0
   ] <#> (_ == 1)
 
-patternB :: Array Boolean
-patternB =
-  [ 0, 0, 0, 0, 0, 0, 0, 0, 0
-  , 0, 0, 1, 1, 1, 0, 0, 0, 0
-  , 0, 0, 1, 0, 1, 0, 0, 0, 0
-  , 0, 0, 1, 0, 1, 0, 0, 0, 0
-  , 0, 0, 1, 1, 1, 1, 0, 0, 0
-  , 0, 0, 1, 0, 0, 1, 0, 0, 0
-  , 0, 0, 1, 0, 0, 1, 0, 0, 0
-  , 0, 0, 1, 1, 1, 1, 0, 0, 0
-  , 0, 0, 0, 0, 0, 0, 0, 0, 0
+pattern02 :: Array Boolean
+pattern02 =
+  [ 0, 0, 1, 1, 0, 0
+  , 0, 1, 1, 1, 1, 0
+  , 0, 1, 0, 0, 1, 0
+  , 0, 1, 0, 0, 1, 0
+  , 0, 1, 0, 0, 1, 0
+  , 0, 1, 0, 0, 1, 0
+  , 0, 1, 0, 0, 1, 0
+  , 0, 1, 0, 1, 1, 0
+  , 0, 0, 1, 1, 0, 0
   ] <#> (_ == 1)
 
-patternC :: Array Boolean
-patternC =
-  [ 0, 0, 0, 0, 0, 0, 0, 0, 0
-  , 0, 0, 0, 1, 1, 1, 1, 0, 0
-  , 0, 0, 1, 0, 0, 0, 0, 0, 0
-  , 0, 1, 0, 0, 0, 0, 0, 0, 0
-  , 0, 1, 0, 0, 0, 0, 0, 0, 0
-  , 0, 1, 0, 0, 0, 0, 0, 0, 0
-  , 0, 0, 1, 0, 0, 0, 0, 0, 0
-  , 0, 0, 0, 1, 1, 1, 0, 0, 0
-  , 0, 0, 0, 0, 0, 0, 0, 0, 0
+pattern31 :: Array Boolean
+pattern31 =
+  [ 0, 0, 0, 0, 0, 0
+  , 0, 0, 1, 1, 0, 0
+  , 0, 0, 0, 1, 0, 0
+  , 0, 0, 0, 1, 0, 0
+  , 0, 0, 1, 0, 0, 0
+  , 0, 0, 1, 1, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 0, 1, 1, 0
+  , 0, 1, 1, 1, 0, 0
+  ] <#> (_ == 1)
+
+pattern32 :: Array Boolean
+pattern32 =
+  [ 0, 0, 0, 0, 0, 0
+  , 0, 1, 1, 1, 1, 0
+  , 0, 0, 0, 1, 0, 0
+  , 0, 0, 1, 1, 0, 0
+  , 0, 0, 1, 1, 0, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 1, 1, 1, 1, 0
+  ] <#> (_ == 1)
+
+pattern61 :: Array Boolean
+pattern61 =
+  [ 0, 0, 0, 1, 1, 0
+  , 0, 0, 1, 1, 0, 0
+  , 0, 0, 1, 0, 0, 0
+  , 0, 1, 0, 0, 0, 0
+  , 0, 1, 0, 1, 0, 0
+  , 0, 1, 1, 1, 1, 0
+  , 0, 1, 0, 0, 0, 1
+  , 0, 1, 1, 1, 1, 0
+  , 0, 0, 0, 0, 0, 0
+  ] <#> (_ == 1)
+
+pattern62 :: Array Boolean
+pattern62 =
+  [ 0, 0, 0, 0, 0, 0
+  , 0, 0, 0, 1, 1, 0
+  , 0, 0, 1, 1, 0, 0
+  , 0, 1, 1, 0, 0, 0
+  , 0, 1, 0, 1, 0, 0
+  , 0, 1, 1, 1, 1, 0
+  , 0, 1, 0, 0, 1, 0
+  , 0, 1, 0, 1, 1, 0
+  , 0, 0, 1, 1, 0, 0
   ] <#> (_ == 1)
 
 patternD :: Array Boolean
 patternD =
-  [ 0, 0, 0, 0, 0, 0, 0, 0, 0
-  , 0, 0, 1, 1, 1, 0, 0, 0, 0
-  , 0, 1, 1, 0, 0, 1, 0, 0, 0
-  , 0, 0, 1, 0, 0, 0, 1, 0, 0
-  , 0, 0, 1, 0, 0, 0, 1, 0, 0
-  , 0, 0, 1, 0, 0, 0, 1, 0, 0
-  , 0, 0, 1, 0, 0, 1, 0, 0, 0
-  , 0, 1, 1, 1, 1, 0, 0, 0, 0
-  , 0, 0, 0, 0, 0, 0, 0, 0, 0
+  [ 0, 0, 0, 0, 0, 0
+  , 0, 0, 1, 1, 1, 0
+  , 0, 1, 1, 0, 0, 1
+  , 0, 0, 1, 0, 0, 0
+  , 0, 0, 1, 0, 0, 0
+  , 0, 0, 1, 0, 0, 0
+  , 0, 0, 1, 0, 0, 1
+  , 0, 1, 1, 1, 1, 0
+  , 0, 0, 0, 0, 0, 0
   ] <#> (_ == 1)
 
+emptyPattern :: Array Boolean
+emptyPattern = replicate 54 false
+
+initPatterns :: Array Pattern
+initPatterns =
+  [ {symbol: 0, pattern: pattern01, selected: true}
+  , {symbol: 0, pattern: pattern02, selected: true}
+  , {symbol: 0, pattern: pattern01, selected: false}
+  , {symbol: 0, pattern: pattern01, selected: false}
+  , {symbol: 0, pattern: emptyPattern, selected: false}
+  , {symbol: 0, pattern: emptyPattern, selected: false}
+
+  , {symbol: 1, pattern: pattern31, selected: true}
+  , {symbol: 1, pattern: pattern32, selected: true}
+  , {symbol: 1, pattern: pattern31, selected: false}
+  , {symbol: 1, pattern: pattern31, selected: false}
+  , {symbol: 1, pattern: emptyPattern, selected: false}
+  , {symbol: 1, pattern: emptyPattern, selected: false}
+
+  , {symbol: 2, pattern: pattern61, selected: true}
+  , {symbol: 2, pattern: pattern62, selected: true}
+  , {symbol: 2, pattern: pattern61, selected: false}
+  , {symbol: 2, pattern: pattern61, selected: false}
+  , {symbol: 2, pattern: emptyPattern, selected: false}
+  , {symbol: 2, pattern: emptyPattern, selected: false}
+
+  , {symbol: 3, pattern: patternD, selected: true}
+  , {symbol: 3, pattern: patternD, selected: true}
+  , {symbol: 3, pattern: patternD, selected: false}
+  , {symbol: 3, pattern: patternD, selected: false}
+  , {symbol: 3, pattern: emptyPattern, selected: false}
+  , {symbol: 3, pattern: emptyPattern, selected: false}
+  ]
+
+
+initNeurons :: Array Neuron
+initNeurons =
+  [ Input 0, Input 1, Input 2, Input 3, Input 4, Input 5
+
+  , Neuron {coeffs: [ {from: 1, coeff: 1.0}, {from: 4, coeff: 1.0} ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 0, coeff: 1.0}, {from: 2, coeff: 1.0} ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 2, coeff: 1.0}, {from: 5, coeff: 1.0} ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 4, coeff: 1.0}, {from: 5, coeff: 1.0} ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 3, coeff: 1.0}, {from: 4, coeff: 1.0} ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 1, coeff: 1.0}, {from: 5, coeff: 1.0} ], threshold: 1.0}
+    
+  , Neuron {coeffs: [ {from: 6, coeff: 1.0}
+                    , {from: 7, coeff: 1.0}
+                    , {from: 8, coeff: 1.0}
+                    , {from: 9, coeff: 1.0}
+                    , {from: 10, coeff: 1.0}
+                    , {from: 11, coeff: 1.0}
+                    ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 6, coeff: 1.0}
+                    , {from: 7, coeff: 1.0}
+                    , {from: 8, coeff: 1.0}
+                    , {from: 9, coeff: 1.0}
+                    , {from: 10, coeff: 1.0}
+                    , {from: 11, coeff: 1.0}
+                    ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 6, coeff: 1.0}
+                    , {from: 7, coeff: 1.0}
+                    , {from: 8, coeff: 1.0}
+                    , {from: 9, coeff: 1.0}
+                    , {from: 10, coeff: 1.0}
+                    , {from: 11, coeff: 1.0}
+                    ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 6, coeff: 1.0}
+                    , {from: 7, coeff: 1.0}
+                    , {from: 8, coeff: 1.0}
+                    , {from: 9, coeff: 1.0}
+                    , {from: 10, coeff: 1.0}
+                    , {from: 11, coeff: 1.0}
+                    ], threshold: 1.0}
+  ]
+
 init :: Model
-init =
-  { patterns:
-    [ {symbol: 0, pattern: patternA, selected: true}
-    , {symbol: 0, pattern: patternA, selected: false}
-    , {symbol: 0, pattern: patternA, selected: false}
-    , {symbol: 0, pattern: patternA, selected: false}
-    , {symbol: 0, pattern: patternA, selected: false}
-    , {symbol: 0, pattern: patternA, selected: false}
-
-    , {symbol: 1, pattern: patternB, selected: true}
-    , {symbol: 1, pattern: patternB, selected: false}
-    , {symbol: 1, pattern: patternB, selected: false}
-    , {symbol: 1, pattern: patternB, selected: false}
-    , {symbol: 1, pattern: patternB, selected: false}
-    , {symbol: 1, pattern: patternB, selected: false}
-
-    , {symbol: 2, pattern: patternC, selected: true}
-    , {symbol: 2, pattern: patternC, selected: false}
-    , {symbol: 2, pattern: patternC, selected: false}
-    , {symbol: 2, pattern: patternC, selected: false}
-    , {symbol: 2, pattern: patternC, selected: false}
-    , {symbol: 2, pattern: patternC, selected: false}
-
-    , {symbol: 3, pattern: patternD, selected: true}
-    , {symbol: 3, pattern: patternD, selected: false}
-    , {symbol: 3, pattern: patternD, selected: false}
-    , {symbol: 3, pattern: patternD, selected: false}
-    , {symbol: 3, pattern: patternD, selected: false}
-    , {symbol: 3, pattern: patternD, selected: false}
-    ]
-  , neurons :
-    [ Input 0, Input 1, Input 2, Input 3, Input 4, Input 5 
-    
-    , Neuron {coeffs: [ {from: 1, coeff: 1}, {from: 4, coeff: 1} ], threshold: 1}
-    , Neuron {coeffs: [ {from: 0, coeff: 1}, {from: 2, coeff: 1} ], threshold: 1}
-    , Neuron {coeffs: [ {from: 2, coeff: 1}, {from: 5, coeff: 1} ], threshold: 1}
-    , Neuron {coeffs: [ {from: 4, coeff: 1}, {from: 5, coeff: 1} ], threshold: 1}
-    , Neuron {coeffs: [ {from: 3, coeff: 1}, {from: 4, coeff: 1} ], threshold: 1}
-    , Neuron {coeffs: [ {from: 1, coeff: 1}, {from: 5, coeff: 1} ], threshold: 1}
-    
-    , Neuron {coeffs: [ {from: 6, coeff: 1}, {from: 7, coeff: 1}, {from: 8, coeff: 1} ], threshold: 40}
-    , Neuron {coeffs: [ {from: 6, coeff: 1}, {from: 9, coeff: 1}, {from: 10, coeff: 1} ], threshold: 1}
-    , Neuron {coeffs: [ {from: 7, coeff: 1}, {from: 9, coeff: 1}, {from: 11, coeff: 1} ], threshold: 1}
-    , Neuron {coeffs: [ {from: 8, coeff: 1}, {from: 10, coeff: 1}, {from: 11, coeff: 1} ], threshold: 1}
-    ]
-  , values: []
+init = 
+  { patterns: initPatterns
+  , states: [{neurons: initNeurons, values: []}]
+  , currentState: 0
   , currentPattern: 0
   , selectedInput: Nothing
-  , selectedNeuron: 6
-  , editorOpen: false
+  , dialog: NoDialog
+  , editMode: false
   } # simulate
-
-indexPattern :: Array Pattern -> Int -> Pattern
-indexPattern ps i = fromMaybe {selected: false, symbol: 0, pattern: []} $ ps !! i
 
 countPixels :: Int -> Array Boolean -> Int
 countPixels i =
   count identity <<< mapWithIndex (\j b -> 
-    let row = j `div` 27
-        col = (j `mod` 9) `div` 3
+    let row = j `div` 18
+        col = (j `mod` 6) `div` 2
     in
     b && if i < 3 then row == i else col == i - 3
   )
@@ -164,56 +256,64 @@ cost :: Number -> Number -> Boolean -> Number
 cost x a true = -a * exp (-a * x)
 cost x a false = a * exp (a * x)
 
-simulate :: Model -> Model
-simulate model@{patterns, currentPattern, neurons} = model { values = force <$> values }
-    where
-      {pattern} = indexPattern patterns currentPattern
-      values = neurons <#> \neuron -> defer \_ ->
+computeValues :: Array Pattern -> Array Neuron -> Array (Array Value)
+computeValues patterns neurons =
+  patterns <#> \{pattern, selected} -> 
+    if selected then
+      let
+        vals = neurons <#> \neuron -> defer \_ ->
           case neuron of
-            Input i -> countPixels i pattern
+            Input i -> {value: Int.toNumber $ countPixels i pattern, error: 0.0}
             Neuron {coeffs, threshold} ->
               let
-                s = sum $ coeffs <#> \{from, coeff} -> coeff * maybe 0 force (values !! from)
+                s = sum $ coeffs <#> \{from, coeff} -> coeff * maybe 0.0 (_.value <<< force) (vals !! from)
               in
-                max 0 (s - threshold)
+                {value: max 0.0 (s - threshold), error: 0.0}
+      in force <$> vals
+    else
+      []
+
+simulate :: Model -> Model
+simulate model@{states, patterns} =
+  model { states = states <#> \{neurons} ->
+    { neurons
+    , values: computeValues patterns neurons
+    }
+  }
+
 
 data Msg
   = SelectInput (Maybe Int)
   | SelectPattern Int
-  | SelectNeuron Int
-  | ChangeCoeff Int String
-  | ChangeThreshold String
-  | OpenPatternEditor Boolean
+  | ChangeCoeff Int Int String
+  | ChangeThreshold Int String
+  | OpenDialog Dialog
   | ChangePixel Int
   | ResetPattern
+  | ToggleEditMode
 
 update :: Msg -> Model -> Model
 update msg model = case msg of
   SelectInput i -> model{selectedInput = i}
   SelectPattern i -> simulate $ model{currentPattern = i}
-  SelectNeuron i -> model{selectedNeuron = i}
-  ChangeCoeff i s -> case Int.fromString s of
+  ChangeCoeff i j s -> case Number.fromString s of
                       Nothing -> model
                       Just val ->
                         simulate $ model # 
-                        (prop (Proxy ∷ _ "neurons") <<< ix model.selectedNeuron <<< _Neuron
-                        <<< prop (Proxy :: _ "coeffs") <<< ix i <<< prop (Proxy :: _ "coeff")
+                        (_states <<< ix 0 <<< _neurons <<< ix i <<< _Neuron
+                        <<< _coeffs <<< ix j <<< prop (Proxy :: _ "coeff")
                         ) .~ val
-  ChangeThreshold s -> case Int.fromString s of
+  ChangeThreshold i s -> case Number.fromString s of
                       Nothing -> model
                       Just val ->
                         simulate $ model # 
-                        (prop (Proxy ∷ _ "neurons") <<< ix model.selectedNeuron <<< _Neuron
-                          <<< prop (Proxy :: _ "threshold")
+                        (_states <<< ix 0 <<< _neurons <<< ix i <<< _Neuron <<< _threshold
                         ) .~ val
-  OpenPatternEditor b -> model{editorOpen = b}
-  ChangePixel i -> simulate $ model # (prop (Proxy ∷ _ "patterns") 
+  OpenDialog d -> model{dialog = d}
+  ChangePixel i -> simulate $ model # (_patterns
                                         <<< ix model.currentPattern 
                                         <<< prop (Proxy :: _ "pattern")
                                         <<< ix i) %~ not
-  ResetPattern -> simulate $ model # (prop (Proxy ∷ _ "patterns") <<< ix model.currentPattern <<< prop (Proxy :: _ "pattern")) .~
-                    case model.currentPattern of
-                      0 -> patternA
-                      1 -> patternB
-                      2 -> patternC
-                      _ -> patternD
+  ToggleEditMode -> model{editMode = not model.editMode}
+  ResetPattern -> simulate $ model # (_patterns <<< ix model.currentPattern) .~
+                    (initPatterns !!! model.currentPattern)

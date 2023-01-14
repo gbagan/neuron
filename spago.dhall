@@ -7,6 +7,7 @@
   , "lazy"
   , "maybe"
   , "numbers"
+  , "partial"
   , "pha"
   , "prelude"
   , "profunctor-lenses"
