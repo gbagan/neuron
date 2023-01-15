@@ -5,15 +5,16 @@ import Prelude
 import Data.Array ((!!), mapWithIndex, replicate)
 import Data.Foldable (sum)
 import Data.Int as Int
-import Data.Number as Number
 import Data.Lazy (defer, force)
 import Data.Lens (Lens', Prism', (.~), (%~), prism')
 import Data.Lens.Index (ix)
 import Data.Lens.Record (prop)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Number (exp)
-import Type.Proxy (Proxy(..))
+import Data.Number as Number
+import Neuron.Patterns (pattern01, pattern02, pattern03, pattern04, pattern31, pattern32, pattern33, pattern34, pattern61, pattern62, pattern63, pattern64, pattern91, pattern92, pattern93, pattern94, emptyPattern)
 import Neuron.Util (count, (!!!))
+import Type.Proxy (Proxy(..))
 
 step :: Number
 step = 0.0001 -- le pas dans le flot gradient
@@ -65,140 +66,34 @@ _coeffs = prop (Proxy :: _ "coeffs")
 _threshold :: Lens' { coeffs :: Array Edge, threshold :: Number } Number
 _threshold = prop (Proxy :: _ "threshold")
 
-pattern01 :: Array Boolean
-pattern01 =
-  [ 0, 0, 0, 0, 0, 0
-  , 0, 0, 1, 1, 1, 0
-  , 0, 1, 0, 0, 1, 1
-  , 0, 1, 0, 0, 0, 1
-  , 0, 1, 0, 0, 0, 1
-  , 0, 1, 0, 0, 0, 1
-  , 0, 1, 0, 0, 1, 1
-  , 0, 1, 0, 0, 1, 0
-  , 0, 0, 1, 1, 0, 0
-  ] <#> (_ == 1)
-
-pattern02 :: Array Boolean
-pattern02 =
-  [ 0, 0, 1, 1, 0, 0
-  , 0, 1, 1, 1, 1, 0
-  , 0, 1, 0, 0, 1, 0
-  , 0, 1, 0, 0, 1, 0
-  , 0, 1, 0, 0, 1, 0
-  , 0, 1, 0, 0, 1, 0
-  , 0, 1, 0, 0, 1, 0
-  , 0, 1, 0, 1, 1, 0
-  , 0, 0, 1, 1, 0, 0
-  ] <#> (_ == 1)
-
-pattern31 :: Array Boolean
-pattern31 =
-  [ 0, 0, 0, 0, 0, 0
-  , 0, 0, 1, 1, 0, 0
-  , 0, 0, 0, 1, 0, 0
-  , 0, 0, 0, 1, 0, 0
-  , 0, 0, 1, 0, 0, 0
-  , 0, 0, 1, 1, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 0, 1, 1, 0
-  , 0, 1, 1, 1, 0, 0
-  ] <#> (_ == 1)
-
-pattern32 :: Array Boolean
-pattern32 =
-  [ 0, 0, 0, 0, 0, 0
-  , 0, 1, 1, 1, 1, 0
-  , 0, 0, 0, 1, 0, 0
-  , 0, 0, 1, 1, 0, 0
-  , 0, 0, 1, 1, 0, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 1, 1, 1, 1, 0
-  ] <#> (_ == 1)
-
-pattern61 :: Array Boolean
-pattern61 =
-  [ 0, 0, 0, 1, 1, 0
-  , 0, 0, 1, 1, 0, 0
-  , 0, 0, 1, 0, 0, 0
-  , 0, 1, 0, 0, 0, 0
-  , 0, 1, 0, 1, 0, 0
-  , 0, 1, 1, 1, 1, 0
-  , 0, 1, 0, 0, 0, 1
-  , 0, 1, 1, 1, 1, 0
-  , 0, 0, 0, 0, 0, 0
-  ] <#> (_ == 1)
-
-pattern62 :: Array Boolean
-pattern62 =
-  [ 0, 0, 0, 0, 0, 0
-  , 0, 0, 0, 1, 1, 0
-  , 0, 0, 1, 1, 0, 0
-  , 0, 1, 1, 0, 0, 0
-  , 0, 1, 0, 1, 0, 0
-  , 0, 1, 1, 1, 1, 0
-  , 0, 1, 0, 0, 1, 0
-  , 0, 1, 0, 1, 1, 0
-  , 0, 0, 1, 1, 0, 0
-  ] <#> (_ == 1)
-
-pattern91 :: Array Boolean
-pattern91 =
-  [ 0, 0, 1, 1, 0, 0
-  , 0, 1, 0, 1, 0, 0
-  , 0, 1, 0, 1, 1, 0
-  , 0, 1, 1, 1, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 1, 1, 1, 0
-  ] <#> (_ == 1)
-
-pattern92 :: Array Boolean
-pattern92 =
-  [ 0, 0, 1, 1, 0, 0
-  , 0, 1, 0, 0, 1, 0
-  , 0, 1, 0, 1, 1, 0
-  , 0, 1, 0, 1, 1, 0
-  , 0, 1, 1, 0, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 0, 0, 1, 0
-  , 0, 0, 1, 1, 1, 0
-  ] <#> (_ == 1)
-
-emptyPattern :: Array Boolean
-emptyPattern = replicate 54 false
 
 initPatterns :: Array Pattern
 initPatterns =
   [ {symbol: 0, pattern: pattern01, selected: true}
   , {symbol: 0, pattern: pattern02, selected: true}
-  , {symbol: 0, pattern: pattern01, selected: false}
-  , {symbol: 0, pattern: pattern01, selected: false}
+  , {symbol: 0, pattern: pattern03, selected: true}
+  , {symbol: 0, pattern: pattern04, selected: true}
   , {symbol: 0, pattern: emptyPattern, selected: false}
   , {symbol: 0, pattern: emptyPattern, selected: false}
 
   , {symbol: 1, pattern: pattern31, selected: true}
   , {symbol: 1, pattern: pattern32, selected: true}
-  , {symbol: 1, pattern: pattern31, selected: false}
-  , {symbol: 1, pattern: pattern31, selected: false}
+  , {symbol: 1, pattern: pattern33, selected: true}
+  , {symbol: 1, pattern: pattern34, selected: true}
   , {symbol: 1, pattern: emptyPattern, selected: false}
   , {symbol: 1, pattern: emptyPattern, selected: false}
 
   , {symbol: 2, pattern: pattern61, selected: true}
   , {symbol: 2, pattern: pattern62, selected: true}
-  , {symbol: 2, pattern: pattern61, selected: false}
-  , {symbol: 2, pattern: pattern61, selected: false}
+  , {symbol: 2, pattern: pattern63, selected: true}
+  , {symbol: 2, pattern: pattern64, selected: true}
   , {symbol: 2, pattern: emptyPattern, selected: false}
   , {symbol: 2, pattern: emptyPattern, selected: false}
 
   , {symbol: 3, pattern: pattern91, selected: true}
   , {symbol: 3, pattern: pattern92, selected: true}
-  , {symbol: 3, pattern: pattern91, selected: false}
-  , {symbol: 3, pattern: pattern91, selected: false}
+  , {symbol: 3, pattern: pattern93, selected: true}
+  , {symbol: 3, pattern: pattern94, selected: true}
   , {symbol: 3, pattern: emptyPattern, selected: false}
   , {symbol: 3, pattern: emptyPattern, selected: false}
   ]
@@ -294,10 +189,15 @@ simulate model@{states, patterns} =
     }
   }
 
+{-
 runStep :: Array Pattern -> State -> State
 runStep patterns {neurons, values} = {neurons: neurons', values: values'} where
-  neurons' = neurons
+  neurons' = neurons # mapWithIndex \i -> case _ of
+    Input j -> Input j
+    Neuron {coeffs, threshold} ->
+
   values' = computeValues patterns neurons'
+-}
 
 data Msg
   = SelectInput (Maybe Int)
