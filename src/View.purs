@@ -3,7 +3,6 @@ module Neuron.View (view) where
 import Prelude
 
 import Data.Array ((..), (!!), concat, mapWithIndex, intersperse)
-import Data.Array.NonEmpty (elemLastIndex)
 import Data.Int as Int
 import Data.Maybe (Maybe(..))
 import Neuron.Model (Dialog(..), Model, Msg(..), Neuron(..), Pattern)
@@ -141,7 +140,7 @@ drawPattern selectedCaptor {pattern} =
         pattern # mapWithIndex \i b ->
             let row = i `div` 6
                 col = i `mod` 6
-                capt = Just (row `div` 3) == selectedCaptor || Just (col `div` 2 + 3) == selectedCaptor 
+                capt = Just (row `div` 3 + 3) == selectedCaptor || Just (col `div` 2) == selectedCaptor 
             in
             H.div
             [   H.class_ "absolute pattern-pixel"

@@ -143,17 +143,30 @@ pattern62 =
   , 0, 0, 1, 1, 0, 0
   ] <#> (_ == 1)
 
-patternD :: Array Boolean
-patternD =
-  [ 0, 0, 0, 0, 0, 0
-  , 0, 0, 1, 1, 1, 0
-  , 0, 1, 1, 0, 0, 1
-  , 0, 0, 1, 0, 0, 0
-  , 0, 0, 1, 0, 0, 0
-  , 0, 0, 1, 0, 0, 0
-  , 0, 0, 1, 0, 0, 1
+pattern91 :: Array Boolean
+pattern91 =
+  [ 0, 0, 1, 1, 0, 0
+  , 0, 1, 0, 1, 0, 0
+  , 0, 1, 0, 1, 1, 0
   , 0, 1, 1, 1, 1, 0
-  , 0, 0, 0, 0, 0, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 1, 1, 1, 0
+  ] <#> (_ == 1)
+
+pattern92 :: Array Boolean
+pattern92 =
+  [ 0, 0, 1, 1, 0, 0
+  , 0, 1, 0, 0, 1, 0
+  , 0, 1, 0, 1, 1, 0
+  , 0, 1, 0, 1, 1, 0
+  , 0, 1, 1, 0, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 0, 0, 1, 0
+  , 0, 0, 1, 1, 1, 0
   ] <#> (_ == 1)
 
 emptyPattern :: Array Boolean
@@ -182,10 +195,10 @@ initPatterns =
   , {symbol: 2, pattern: emptyPattern, selected: false}
   , {symbol: 2, pattern: emptyPattern, selected: false}
 
-  , {symbol: 3, pattern: patternD, selected: true}
-  , {symbol: 3, pattern: patternD, selected: true}
-  , {symbol: 3, pattern: patternD, selected: false}
-  , {symbol: 3, pattern: patternD, selected: false}
+  , {symbol: 3, pattern: pattern91, selected: true}
+  , {symbol: 3, pattern: pattern92, selected: true}
+  , {symbol: 3, pattern: pattern91, selected: false}
+  , {symbol: 3, pattern: pattern91, selected: false}
   , {symbol: 3, pattern: emptyPattern, selected: false}
   , {symbol: 3, pattern: emptyPattern, selected: false}
   ]
@@ -195,41 +208,41 @@ initNeurons :: Array Neuron
 initNeurons =
   [ Input 0, Input 1, Input 2, Input 3, Input 4, Input 5
 
-  , Neuron {coeffs: [ {from: 1, coeff: 1.0}, {from: 4, coeff: 1.0} ], threshold: 1.0}
-  , Neuron {coeffs: [ {from: 0, coeff: 1.0}, {from: 2, coeff: 1.0} ], threshold: 1.0}
-  , Neuron {coeffs: [ {from: 2, coeff: 1.0}, {from: 5, coeff: 1.0} ], threshold: 1.0}
-  , Neuron {coeffs: [ {from: 4, coeff: 1.0}, {from: 5, coeff: 1.0} ], threshold: 1.0}
-  , Neuron {coeffs: [ {from: 3, coeff: 1.0}, {from: 4, coeff: 1.0} ], threshold: 1.0}
-  , Neuron {coeffs: [ {from: 1, coeff: 1.0}, {from: 5, coeff: 1.0} ], threshold: 1.0}
+  , Neuron {coeffs: [ {from: 0, coeff: -1.0}, {from: 1, coeff: 1.0}, {from: 2, coeff: 1.0} ], threshold: 8.0}
+  , Neuron {coeffs: [ {from: 0, coeff: 1.0}, {from: 1, coeff: 1.0}, {from: 5, coeff: -1.0} ], threshold: 7.0}
+  , Neuron {coeffs: [ {from: 2, coeff: 1.0}, {from: 3, coeff: 1.0}, {from: 4, coeff: 1.0} ], threshold: 18.0}
+  , Neuron {coeffs: [ {from: 1, coeff: 1.0}, {from: 3, coeff: -1.0}, {from: 5, coeff: 1.0} ], threshold: 6.0}
+  , Neuron {coeffs: [ {from: 0, coeff: 1.0}, {from: 4, coeff: 1.0}, {from: 5, coeff: 1.0} ], threshold: 16.0}
+  , Neuron {coeffs: [ {from: 3, coeff: 1.0}, {from: 4, coeff: -1.0}, {from: 5, coeff: 1.0} ], threshold: 5.0}
     
+  , Neuron {coeffs: [ {from: 6, coeff: -1.0}
+                    , {from: 7, coeff: -1.0}
+                    , {from: 8, coeff: 1.0}
+                    , {from: 9, coeff: -1.0}
+                    , {from: 10, coeff: 1.0}
+                    , {from: 11, coeff: 1.0}
+                    ], threshold: 7.0}
+  , Neuron {coeffs: [ {from: 6, coeff: 1.0}
+                    , {from: 7, coeff: 1.0}
+                    , {from: 8, coeff: -1.0}
+                    , {from: 9, coeff: 1.0}
+                    , {from: 10, coeff: -1.0}
+                    , {from: 11, coeff: 0.0}
+                    ], threshold: 5.0}
+  , Neuron {coeffs: [ {from: 6, coeff: -1.0}
+                    , {from: 7, coeff: 1.0}
+                    , {from: 8, coeff: -1.0}
+                    , {from: 9, coeff: 1.0}
+                    , {from: 10, coeff: 1.0}
+                    , {from: 11, coeff: -1.0}
+                    ], threshold: 6.0}
   , Neuron {coeffs: [ {from: 6, coeff: 1.0}
                     , {from: 7, coeff: 1.0}
                     , {from: 8, coeff: 1.0}
-                    , {from: 9, coeff: 1.0}
-                    , {from: 10, coeff: 1.0}
-                    , {from: 11, coeff: 1.0}
-                    ], threshold: 1.0}
-  , Neuron {coeffs: [ {from: 6, coeff: 1.0}
-                    , {from: 7, coeff: 1.0}
-                    , {from: 8, coeff: 1.0}
-                    , {from: 9, coeff: 1.0}
-                    , {from: 10, coeff: 1.0}
-                    , {from: 11, coeff: 1.0}
-                    ], threshold: 1.0}
-  , Neuron {coeffs: [ {from: 6, coeff: 1.0}
-                    , {from: 7, coeff: 1.0}
-                    , {from: 8, coeff: 1.0}
-                    , {from: 9, coeff: 1.0}
-                    , {from: 10, coeff: 1.0}
-                    , {from: 11, coeff: 1.0}
-                    ], threshold: 1.0}
-  , Neuron {coeffs: [ {from: 6, coeff: 1.0}
-                    , {from: 7, coeff: 1.0}
-                    , {from: 8, coeff: 1.0}
-                    , {from: 9, coeff: 1.0}
-                    , {from: 10, coeff: 1.0}
-                    , {from: 11, coeff: 1.0}
-                    ], threshold: 1.0}
+                    , {from: 9, coeff: -1.0}
+                    , {from: 10, coeff: -1.0}
+                    , {from: 11, coeff: 0.0}
+                    ], threshold: 5.0}
   ]
 
 init :: Model
@@ -249,7 +262,7 @@ countPixels i =
     let row = j `div` 18
         col = (j `mod` 6) `div` 2
     in
-    b && if i < 3 then row == i else col == i - 3
+    b && if i < 3 then col == i else row == i - 3
   )
 
 cost :: Number -> Number -> Boolean -> Number
@@ -281,6 +294,10 @@ simulate model@{states, patterns} =
     }
   }
 
+runStep :: Array Pattern -> State -> State
+runStep patterns {neurons, values} = {neurons: neurons', values: values'} where
+  neurons' = neurons
+  values' = computeValues patterns neurons'
 
 data Msg
   = SelectInput (Maybe Int)
