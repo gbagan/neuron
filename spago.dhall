@@ -4,13 +4,13 @@
   , "effect"
   , "foldable-traversable"
   , "integers"
-  , "lazy"
   , "maybe"
   , "numbers"
   , "partial"
   , "pha"
   , "prelude"
   , "profunctor-lenses"
+  , "unfoldable"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]

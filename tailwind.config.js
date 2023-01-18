@@ -6,6 +6,9 @@ module.exports = {
       colors: {
         'white': '#ffffff',
         'transp-grey': 'rgba(127, 140, 141, 0.7)'
+      },
+      width: {
+        'halfscreen': '50vw'
       }
     },
   },
