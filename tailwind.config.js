@@ -8,7 +8,7 @@ module.exports = {
         'transp-grey': 'rgba(127, 140, 141, 0.7)'
       },
       width: {
-        'halfscreen': '50vw'
+        'halfscreen': '75vw'
       }
     },
   },

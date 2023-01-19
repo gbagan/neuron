@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Array ((..), filter, mapWithIndex, snoc, sortWith, zipWith)
 import Data.Foldable (foldl, sum, minimum, maximum)
+import Data.Int (floor, ceil)
 import Data.Int as Int
 import Data.Lens (Lens', (.~), (%~))
 import Data.Lens.Index (ix)
@@ -230,16 +231,16 @@ update msg model = case msg of
   ToggleEditMode -> model { editMode = not model.editMode }
   ResetPattern -> simulate $ model # (_patterns <<< ix model.currentPattern) .~
     (initPatterns ! model.currentPattern)
-  RunLearning -> runLearning 10 model
+  RunLearning -> runLearning 100 model
 
 
 rulerPositions :: Array Pattern -> State -> Int -> Int ->
                     { zero :: Number
                     , symbols :: Array { symbol :: Int, x :: Number, y :: Number }
+                    , graduation :: Array { value :: Int, x :: Number }
                     }
 rulerPositions patterns st i j =
   let
-    threshold = if i == 1 then st.hiddenThresholds ! j else st.finalThresholds ! j
     values = st.output <#> \{hidden, final} -> if i == 1 then (hidden ! j).value else final ! j
     minX = fromMaybe 0.0 $ minimum values
     maxX = fromMaybe 0.0 $ maximum values
@@ -254,4 +255,5 @@ rulerPositions patterns st i j =
   in
     { zero: - minX / (maxX - minX)
     , symbols: (foldl go {prev: -0.1, height: 0.0, acc: []} t).acc
+    , graduation: floor minX .. ceil maxX <#> \k -> {value: k, x: (Int.toNumber k - minX) / (maxX - minX)}
     }

@@ -32,7 +32,7 @@ showEditor { patterns, currentPattern } =
   H.div [ H.class_ "absolute w-full h-full flex items-center justify-center bg-transp-grey inset-0 z-50" ]
     [ H.div [ H.class_ "bg-black text-white rounded block border-2" ]
         [ H.div [ H.class_ "p-4 min-h-8 border-b-2" ]
-            [ H.div [ H.class_ "text-2xl font-medium inline-block" ] [ H.text "Modifier le motif" ]
+            [ H.div [ H.class_ "text-4xl font-medium inline-block" ] [ H.text "Modifier le motif" ]
             ]
         , H.div [ H.class_ "p-6 border-b-2" ] [ body ]
         , H.div [ H.class_ "p-4 text-right" ] --[H.class_ "ui-dialog-buttons"]
@@ -83,7 +83,7 @@ neuronDialog { editMode, states, currentState, patterns } i j =
   H.div [ H.class_ "absolute w-full h-full flex items-center justify-center bg-transp-grey inset-0 z-50" ]
     [ H.div [ H.class_ "bg-black text-white rounded block border-2" ]
         [ H.div [ H.class_ "p-4 min-h-8 border-b-2" ]
-            [ H.div [ H.class_ "text-2xl font-medium inline-block" ] [ H.text "Modifier le motif" ]
+            [ H.div [ H.class_ "text-4xl font-medium inline-block" ] [ H.text title ]
             ]
         , H.div [ H.class_ "p-6 border-b-2" ] [ body ]
         , H.div [ H.class_ "p-4 text-right" ]
@@ -117,6 +117,19 @@ neuronDialog { editMode, states, currentState, patterns } i j =
   st = states ! currentState
   threshold = if i == 1 then st.hiddenThresholds ! j else st.finalThresholds ! j
   weights = if i == 1 then st.hiddenWeights ! j else st.finalWeights ! j 
+
+  title = "Neurone " <> case i, j of
+    1, 0 -> "A"
+    1, 1 -> "B"
+    1, 2 -> "C"
+    1, 3 -> "D"
+    1, 4 -> "E"
+    1, 5 -> "F"
+    2, 0 -> "vert"
+    2, 1 -> "bleu"
+    2, 2 -> "rose"
+    _, _ -> "jaune"
+
   drawCalculus = H.div [ H.class_ "text-4xl" ] $
     [ if editMode then
         H.span [] $ intersperse (H.span [ H.class_ "text-4xl mx-4" ] [ H.text "+" ]) $
@@ -161,21 +174,25 @@ neuronDialog { editMode, states, currentState, patterns } i j =
   showNeuron k =
     H.div [ H.class_ "inline-block w-8 h-8" ]
       [ H.svg [ H.class_ "w-full h-full" ]
-          [ H.use [ P.href $ "#neuron-" <> show k ] ]
+          [ H.use [ P.href $ "#neuron-" <> show k ]]
       ]
 
   drawRulerSymbol x y color =
-    H.g
-      [H.style "transform" $ translate (px $ x * 100.0) (px $ 35.0 - y * 5.0)]
-      [H.rect [P.x (-2.5), P.y 0.0, P.width "5", P.height "5", P.fill (patternColor color)]]
+    H.g [H.style "transform" $ translate (px $ x * 100.0) (px $ 25.0 - y * 5.0)]
+      [ H.rect [P.x (-2.5), P.y 0.0, P.width "5", P.height "5", P.fill (patternColor color)]
+      , H.text_ (show $ color * 3) [P.x (-1.0), P.y (4.5), H.attr "font-size" "0.3rem"] 
+      ]
 
   res = rulerPositions patterns st i j
   
   drawRuler =
     H.div [H.class_ "border w-halfscreen"]
-    [ H.svg [P.viewBox (-10) 0 120 40]
+    [ H.svg [P.viewBox (-10) 0 120 30]
         [ H.rect [P.x (-10.0), P.y 0.0, P.width "120", P.height "40", P.fill "#B0FFB0"]
         , H.rect [P.x (-10.0), P.y 0.0, P.width $ show $ 7.5 + res.zero * 100.0, P.height "40", P.fill "#FFB0B0"]
+        , H.g [] $ res.graduation <#> \{x} ->
+            H.line [ P.x1 (x*100.0-2.5), P.x2 (x*100.0-2.5), P.y1 0.0, P.y1 30.0
+                   , P.strokeWidth 0.2, P.stroke "#808080", P.strokeDasharray "0.5"] 
         , H.g [] $
             res.symbols <#> \{symbol, x, y} -> drawRulerSymbol x y symbol
         ]
