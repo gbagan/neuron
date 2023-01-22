@@ -2,11 +2,11 @@ module Neuron.View (view) where
 
 import Prelude
 
-import Data.Array ((..), (!!), concat, filter, mapWithIndex, intersperse)
+import Data.Array ((..), (!!), concat, filter, length, mapWithIndex, intersperse)
 import Data.Int as Int
 import Data.Maybe (Maybe(..))
 import Data.Number.Format (toStringWith, fixed)
-import Neuron.Model (Dialog(..), Model, Msg(..), Pattern, delta, rulerPositions)
+import Neuron.Model (Dialog(..), Model, Msg(..), Pattern, mask, rulerPositions)
 import Neuron.Util ((!))
 import Pha.Html (Html)
 import Pha.Html as H
@@ -17,15 +17,15 @@ import Pha.Html.Util (pc, px, translate)
 buttonClass :: String
 buttonClass = "text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800"
 
-inputRange :: String
-inputRange = "inline-block w-48 border text-4xl rounded-lg p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+inputNumberClass :: String
+inputNumberClass = "inline-block w-48 border text-4xl rounded-lg p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
 
 patternColor :: Int -> String
 patternColor = case _ of
-    0 -> "#A3E635"
-    1 -> "#60A5FA"
-    2 -> "#EC4899"
-    _ -> "#FACC15"
+  0 -> "#A3E635"
+  1 -> "#60A5FA"
+  2 -> "#EC4899"
+  _ -> "#FACC15"
 
 showEditor :: Model -> Html Msg
 showEditor { patterns, currentPattern } =
@@ -57,7 +57,18 @@ showEditor { patterns, currentPattern } =
       [ editor
       , H.div [ H.class_ "grid grid-cols-6 gap-2" ] $
           patterns # mapWithIndex \i pattern ->
-            drawMiniPattern i (i == currentPattern) pattern
+            H.div [H.class_ "flex flex-col items-center"]
+            [ H.label [H.class_ "relative inline-flex items-center cursor-pointer"]
+              [ H.input
+                [ P.type_ "checkbox"
+                , P.checked pattern.selected
+                , H.class_ "sr-only peer"
+                , E.onChecked \_ -> TogglePattern i
+                ]
+              , H.div [H.class_ "w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"] []  
+              ]
+            , drawMiniPattern i (i == currentPattern) pattern
+            ]
       ]
 
   editor = H.maybe (patterns !! currentPattern) \{ pattern } ->
@@ -112,6 +123,15 @@ neuronDialog { editMode, states, currentState, patterns } i j =
   body = H.div [H.class_ "flex flex-col"]
     [ drawCalculus
     , drawRuler
+    , H.div [H.class_ "text-4xl"]
+      [ H.text $ "Nombre d'itérations: " <> show st.iter
+      , H.when (length states > 1) \_ ->
+          H.input [ H.class_ "h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                  , P.type_ "range", P.min 0, P.max (length states - 1)
+                  , P.value (show currentState)
+                  , E.onValueChange ChangeCurrentState
+                  ]
+      ]
     ]
 
   st = states ! currentState
@@ -136,10 +156,10 @@ neuronDialog { editMode, states, currentState, patterns } i j =
           weights # mapWithIndex \k weight ->
             H.span []
               [ H.input
-                  [ H.class_ inputRange
+                  [ H.class_ inputNumberClass
                   , P.type_ "number"
                   , P.value (show weight)
-                  -- ,   E.onValueChange $ ChangeCoeff i j
+                  , E.onValueChange $ ChangeWeight i j k
                   ]
               , showNeuron $ (if i == 2 then 6 else 0) + k
               ]
@@ -158,14 +178,13 @@ neuronDialog { editMode, states, currentState, patterns } i j =
                     , showNeuron $ (if i == 2 then 6 else 0) + index
                     ]
     , H.br
-    , H.br
     , H.text "Seuil: "
     , if editMode then
         H.input
-          [ H.class_ inputRange
+          [ H.class_ inputNumberClass
           , P.type_ "number"
           , P.value (show threshold)
-          , E.onValueChange $ ChangeThreshold i
+          , E.onValueChange $ ChangeThreshold i j
           ]
       else
         H.text (show threshold)
@@ -200,7 +219,9 @@ neuronDialog { editMode, states, currentState, patterns } i j =
 
 drawPattern :: Maybe Int -> Pattern -> Html Msg
 drawPattern selectedCaptor { pattern } =
-  H.div [ H.class_ "overflow-hidden relative border-4 border-slate-400 m-2 w-64 h-96" ] $
+  H.div [ H.class_ "overflow-hidden relative border-4 border-slate-400 m-2 w-64 h-96"
+        , E.onClick \_ -> OpenDialog EditorDialog
+        ] $
     pattern # mapWithIndex \i b ->
       let
         row = i `div` 6
@@ -208,7 +229,7 @@ drawPattern selectedCaptor { pattern } =
         capt = Just (row `div` 3 + 3) == selectedCaptor || Just (col `div` 2) == selectedCaptor
       in
         H.div
-          [ H.class_ "absolute pattern-pixel"
+          [ H.class_ "absolute pointer-events-none pattern-pixel"
           , H.class' "black" b
           , H.class' "selected" capt
           , H.style "width" "16.66666666%"
@@ -294,10 +315,7 @@ view model@{ patterns, states, currentState, currentPattern, selectedInput, dial
   H.div [ H.class_ "w-full min-h-full bg-black" ]
     [ H.div [ H.class_ "flex flew-row" ]
         [ H.div [ H.class_ "w-1/4" ]
-            [ H.button [ H.class_ buttonClass, E.onClick \_ -> OpenDialog EditorDialog ]
-                [ H.text "Modifier le motif"
-                ]
-            , drawPattern selectedInput (patterns ! currentPattern)
+            [ drawPattern selectedInput (patterns ! currentPattern)
             ]
         , H.div [ H.class_ "w-3/4 relative" ] [ showNetwork ]
 
@@ -313,7 +331,7 @@ view model@{ patterns, states, currentState, currentPattern, selectedInput, dial
   { final } = output ! currentPattern
   showNetwork =
     H.svg [ P.viewBox 0 0 150 100 ]
-      [ H.g [] $ concat $ delta # mapWithIndex \i -> mapWithIndex \j v ->
+      [ H.g [] $ concat $ mask # mapWithIndex \i -> mapWithIndex \j v ->
           H.when v \_ -> drawLine 0 j 1 i
       , H.g [] $ do
           i <- 0 .. 5

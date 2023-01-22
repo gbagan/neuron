@@ -2,7 +2,7 @@ module Neuron.Model where
 
 import Prelude
 
-import Data.Array ((..), filter, mapWithIndex, snoc, sortWith, zipWith)
+import Data.Array ((..), elem, filter, mapWithIndex, snoc, sortWith, zipWith)
 import Data.Foldable (foldl, sum, minimum, maximum)
 import Data.Int (floor, ceil)
 import Data.Int as Int
@@ -37,14 +37,13 @@ type Pattern = { symbol :: Int, pattern :: Array Boolean, selected :: Boolean }
 
 data Dialog = EditorDialog | NeuronDialog Int Int | NoDialog
 
-type Value = { value :: Number, cut :: Number }
-
 type State =
   { hiddenThresholds :: Array Number
   , hiddenWeights :: Array (Array Number)
   , finalThresholds :: Array Number
   , finalWeights :: Array (Array Number)
-  , output :: Array { hidden :: Array Value, final :: Array Number }
+  , output :: Array { hidden :: Array Number, final :: Array Number }
+  , iter :: Int
   }
 
 type Model =
@@ -70,8 +69,21 @@ _hiddenWeights = prop (Proxy :: _ "hiddenWeights")
 _hiddenThresholds :: Lens' State (Array Number)
 _hiddenThresholds = prop (Proxy :: _ "hiddenThresholds")
 
-delta :: Array (Array Boolean)
-delta =
+_finalWeights :: Lens' State (Array (Array Number))
+_finalWeights = prop (Proxy :: _ "hiddenWeights")
+
+_finalThresholds :: Lens' State (Array Number)
+_finalThresholds = prop (Proxy :: _ "hiddenThresholds")
+
+_currentState :: Lens' Model Int
+_currentState = prop (Proxy :: _ "currentState")
+
+_selected :: Lens' Pattern Boolean
+_selected = prop (Proxy :: _ "selected")
+
+-- | mask ! i ! j <=> there is a link between the the hidden neuron i and the input neuron j
+mask :: Array (Array Boolean)
+mask =
   [ [ 1, 1, 1, 0, 0, 0 ]
   , [ 1, 1, 0, 0, 0, 1 ]
   , [ 0, 0, 1, 1, 1, 0 ]
@@ -130,6 +142,7 @@ initState =
       , [ 1.0, 1.0, 1.0, -1.0, -1.0, 0.0 ]
       ]
   , output: []
+  , iter: 0
   }
 
 init :: Model
@@ -166,15 +179,9 @@ updateOutput inputs st = st { output = output }
   output = inputs <#> \input ->
     let
       hidden = map2 st.hiddenThresholds st.hiddenWeights \t hw ->
-        let
-          s = sum (zipWith (*) input hw) - t
-        in
-          if s < 0.0 then
-            { value: 0.0, cut: 1.0 }
-          else
-            { value: s, cut: 0.0 }
+        max 0.0 (sum (zipWith (*) input hw) - t)
       final = map2 st.finalThresholds st.finalWeights \t fw ->
-        sum (zipWith (*) (_.value <$> hidden) fw) - t
+        sum (zipWith (*) hidden fw) - t
     in
       { final, hidden }
 
@@ -186,53 +193,17 @@ simulate model@{ states, patterns } = model { inputs = inputs, states = states <
 foreign import runStepImpl :: Array (Array Boolean) -> Model -> State -> State
 
 runStep :: Model -> State -> State
-runStep m@{ inputs } st = updateOutput inputs $ runStepImpl delta m st
+runStep m@{ inputs } st = updateOutput inputs $ runStepImpl mask m st
 
-runLearning :: Int -> Model -> Model
-runLearning nsteps m@{ states } = m { states = [ go nsteps (states ! 0) ] }
+iterList :: Array Int
+iterList = [0, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000, 60000]
+
+runLearning :: Model -> Model
+runLearning m@{ states } = m { states = go 0 [] (states ! 0) }
   where
-  go 0 st = st
-  go n st = go (n - 1) (runStep m st)
-
-data Msg
-  = SelectInput (Maybe Int)
-  | SelectPattern Int
-  | ChangeHiddenWeight Int Int String
-  | ChangeThreshold Int String
-  | OpenDialog Dialog
-  | ChangePixel Int
-  | ResetPattern
-  | ToggleEditMode
-  | RunLearning
-
-update :: Msg -> Model -> Model
-update msg model = case msg of
-  SelectInput i -> model { selectedInput = i }
-  SelectPattern i -> simulate $ model { currentPattern = i }
-  ChangeHiddenWeight i j s -> case Number.fromString s of
-    Nothing -> model
-    Just val ->
-      simulate $ model #
-        ( _states <<< ix 0 <<< _hiddenWeights <<< ix i <<< ix j
-        ) .~ val
-  ChangeThreshold i s -> case Number.fromString s of
-    Nothing -> model
-    Just val ->
-      simulate $ model #
-        ( _states <<< ix 0 <<< _hiddenThresholds <<< ix i
-        ) .~ val
-  OpenDialog d -> model { dialog = d }
-  ChangePixel i -> simulate $ model #
-    ( _patterns
-        <<< ix model.currentPattern
-        <<< prop (Proxy :: _ "pattern")
-        <<< ix i
-    ) %~ not
-  ToggleEditMode -> model { editMode = not model.editMode }
-  ResetPattern -> simulate $ model # (_patterns <<< ix model.currentPattern) .~
-    (initPatterns ! model.currentPattern)
-  RunLearning -> runLearning 100 model
-
+  go n acc st | n==60000 = acc `snoc` st
+              | n `elem` iterList = go (n + 1) (acc `snoc` st) (runStep m st)
+              | otherwise = go (n+1) acc (runStep m st)
 
 rulerPositions :: Array Pattern -> State -> Int -> Int ->
                     { zero :: Number
@@ -241,7 +212,7 @@ rulerPositions :: Array Pattern -> State -> Int -> Int ->
                     }
 rulerPositions patterns st i j =
   let
-    values = st.output <#> \{hidden, final} -> if i == 1 then (hidden ! j).value else final ! j
+    values = st.output <#> \{hidden, final} -> if i == 1 then hidden ! j else final ! j
     minX = fromMaybe 0.0 $ minimum values
     maxX = fromMaybe 0.0 $ maximum values
     values' = values <#> \v -> (v - minX) / (maxX - minX)
@@ -257,3 +228,53 @@ rulerPositions patterns st i j =
     , symbols: (foldl go {prev: -0.1, height: 0.0, acc: []} t).acc
     , graduation: floor minX .. ceil maxX <#> \k -> {value: k, x: (Int.toNumber k - minX) / (maxX - minX)}
     }
+
+data Msg
+  = SelectInput (Maybe Int)
+  | SelectPattern Int
+  | ChangeWeight Int Int Int String
+  | ChangeThreshold Int Int String
+  | OpenDialog Dialog
+  | TogglePattern Int
+  | ChangePixel Int
+  | ResetPattern
+  | ToggleEditMode
+  | RunLearning
+  | ChangeCurrentState String
+
+update :: Msg -> Model -> Model
+update msg model = case msg of
+  SelectInput i -> model { selectedInput = i }
+  SelectPattern i -> simulate $ model { currentPattern = i }
+  ChangeWeight i j k s -> case Number.fromString s of
+    Nothing -> model
+    Just val ->
+      simulate $ model #
+        ( _states <<< ix model.currentState <<< (if i == 1 then _hiddenWeights else _finalWeights) <<< ix j <<< ix k
+        ) .~ val
+        # _states %~ (\sts -> [(sts ! model.currentState){iter = 0}])
+        # _currentState .~ 0
+  ChangeThreshold i j s -> case Number.fromString s of
+    Nothing -> model
+    Just val ->
+      simulate $ model #
+        ( _states <<< ix model.currentState <<< (if i == 1 then _hiddenThresholds else _finalThresholds) <<< ix j
+        ) .~ val
+        # _states %~ (\sts -> [(sts ! model.currentState){iter = 0}])
+        # _currentState .~ 0
+  OpenDialog d -> model { dialog = d }
+  TogglePattern i -> model # (_patterns <<< ix i <<< _selected) %~ not
+  ChangePixel i -> simulate $ model #
+    ( _patterns
+        <<< ix model.currentPattern
+        <<< prop (Proxy :: _ "pattern")
+        <<< ix i
+    ) %~ not
+  ToggleEditMode -> model { editMode = not model.editMode }
+  ResetPattern -> simulate $ model # (_patterns <<< ix model.currentPattern) .~
+    (initPatterns ! model.currentPattern)
+  RunLearning -> runLearning model
+  ChangeCurrentState s -> case Int.fromString s of
+    Nothing -> model
+    Just i -> model { currentState = i }
+

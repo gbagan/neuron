@@ -3,8 +3,8 @@ const coef = 0.7 // coef dans la fonction de coût d'erreur qui est une fonction
 
 const dercost = (x, b) => b ? -coef * Math.exp(-coef * x) : coef * Math.exp(coef * x)
 
-export const runStepImpl = delta => ({patterns, inputs}) => st => {
-    const {hiddenThresholds, hiddenWeights, finalThresholds, finalWeights, output} = st
+export const runStepImpl = mask => ({patterns, inputs}) => st => {
+    const {iter, hiddenThresholds, hiddenWeights, finalThresholds, finalWeights, output} = st
     const finalThresholds2 = [...finalThresholds]
     const finalWeights2 = finalWeights.map (x => [...x])
     const hiddenThresholds2 = [...hiddenThresholds]
@@ -21,21 +21,24 @@ export const runStepImpl = delta => ({patterns, inputs}) => st => {
 
             for (let i = 0; i < 4; i++)
                 for (let j = 0; j < 6; j++)
-                    finalWeights2[i][j] -= step*dercost(final[i], symbol==i)*hidden[j].value
+                    finalWeights2[i][j] -= step*dercost(final[i], symbol==i)*hidden[j]
 
             for (let k = 0; k < 6; k++)
-                for (let j = 0; j < 4; j++)
-                    hiddenThresholds2[k] += step*dercost(final[j],symbol==j)*hidden[k].cut*hiddenWeights[j][k]
+                if (hidden[k] > 0)
+                    for (let j = 0; j < 4; j++)
+                        hiddenThresholds2[k] += step*dercost(final[j],symbol==j)*hiddenWeights[j][k]
 
             for (let k = 0; k < 6; k++)
-                for (let i = 0; i < 6; i++)
-                    if (delta[k][i])
-                        for (let j = 0; j < 4; j++)
-                            hiddenWeights2[k][i] -=
-                                step*dercost(final[j],symbol==j)*finalWeights[j][k]*input[i]*hidden[k].cut
+                if (hidden[k] > 0)
+                    for (let i = 0; i < 6; i++)
+                        if (mask[k][i])
+                            for (let j = 0; j < 4; j++)
+                                hiddenWeights2[k][i] -=
+                                    step*dercost(final[j],symbol==j)*finalWeights[j][k]*input[i]
         }
     }
     return {...st,
+            iter: iter+1,
             finalThresholds: finalThresholds2,
             finalWeights: finalWeights2,
             hiddenThresholds: hiddenThresholds2,
