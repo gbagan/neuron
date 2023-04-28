@@ -1,5 +1,5 @@
 /*
-! tailwindcss v3.2.4 | MIT License | https://tailwindcss.com
+! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
 */
 
 /*
@@ -31,6 +31,7 @@
 3. Use a more readable tab size.
 4. Use the user's configured `sans` font-family by default.
 5. Use the user's configured `sans` font-feature-settings by default.
+6. Use the user's configured `sans` font-variation-settings by default.
 */
 
 html {
@@ -47,6 +48,8 @@ html {
   /* 4 */
   font-feature-settings: normal;
   /* 5 */
+  font-variation-settings: normal;
+  /* 6 */
 }
 
 /*
@@ -433,6 +436,9 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -480,6 +486,9 @@ video {
   --tw-pan-y:  ;
   --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
   --tw-ordinal:  ;
   --tw-slashed-zero:  ;
   --tw-numeric-figure:  ;
@@ -542,10 +551,7 @@ video {
 }
 
 .inset-0 {
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
+  inset: 0px;
 }
 
 .z-50 {
@@ -561,8 +567,12 @@ video {
   margin-right: 1rem;
 }
 
-.mr-4 {
-  margin-right: 1rem;
+.ml-4 {
+  margin-left: 1rem;
+}
+
+.mt-12 {
+  margin-top: 3rem;
 }
 
 .block {
@@ -589,32 +599,52 @@ video {
   display: none;
 }
 
-.h-96 {
-  height: 24rem;
+.h-2 {
+  height: 0.5rem;
+}
+
+.h-24 {
+  height: 6rem;
 }
 
 .h-36 {
   height: 9rem;
 }
 
+.h-6 {
+  height: 1.5rem;
+}
+
 .h-8 {
   height: 2rem;
+}
+
+.h-96 {
+  height: 24rem;
 }
 
 .h-full {
   height: 100%;
 }
 
-.h-2 {
-  height: 0.5rem;
-}
-
-.h-6 {
-  height: 1.5rem;
-}
-
 .min-h-full {
   min-height: 100%;
+}
+
+.w-1\/4 {
+  width: 25%;
+}
+
+.w-11 {
+  width: 2.75rem;
+}
+
+.w-24 {
+  width: 6rem;
+}
+
+.w-3\/4 {
+  width: 75%;
 }
 
 .w-48 {
@@ -625,32 +655,20 @@ video {
   width: 16rem;
 }
 
-.w-24 {
-  width: 6rem;
-}
-
-.w-full {
-  width: 100%;
-}
-
 .w-8 {
   width: 2rem;
 }
 
-.w-halfscreen {
+.w-\[40vw\] {
+  width: 40vw;
+}
+
+.w-\[75vw\] {
   width: 75vw;
 }
 
-.w-11 {
-  width: 2.75rem;
-}
-
-.w-1\/4 {
-  width: 25%;
-}
-
-.w-3\/4 {
-  width: 75%;
+.w-full {
+  width: 100%;
 }
 
 .transform {
@@ -665,6 +683,10 @@ video {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .grid-cols-6 {
@@ -687,20 +709,16 @@ video {
   justify-content: center;
 }
 
-.gap-8 {
-  gap: 2rem;
-}
-
 .gap-2 {
   gap: 0.5rem;
 }
 
-.overflow-hidden {
-  overflow: hidden;
+.gap-8 {
+  gap: 2rem;
 }
 
-.rounded-lg {
-  border-radius: 0.5rem;
+.overflow-hidden {
+  overflow: hidden;
 }
 
 .rounded {
@@ -711,16 +729,20 @@ video {
   border-radius: 9999px;
 }
 
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
 .border {
   border-width: 1px;
 }
 
-.border-4 {
-  border-width: 4px;
-}
-
 .border-2 {
   border-width: 2px;
+}
+
+.border-4 {
+  border-width: 4px;
 }
 
 .border-b-2 {
@@ -732,53 +754,14 @@ video {
   border-color: rgb(75 85 99 / var(--tw-border-opacity));
 }
 
-.border-slate-400 {
-  --tw-border-opacity: 1;
-  border-color: rgb(148 163 184 / var(--tw-border-opacity));
-}
-
 .border-green-500 {
   --tw-border-opacity: 1;
   border-color: rgb(34 197 94 / var(--tw-border-opacity));
 }
 
-.bg-gray-700 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(55 65 81 / var(--tw-bg-opacity));
-}
-
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.bg-green-400 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(74 222 128 / var(--tw-bg-opacity));
-}
-
-.bg-blue-400 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(96 165 250 / var(--tw-bg-opacity));
-}
-
-.bg-pink-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(236 72 153 / var(--tw-bg-opacity));
-}
-
-.bg-yellow-400 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(250 204 21 / var(--tw-bg-opacity));
-}
-
-.bg-blue-600 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
-}
-
-.bg-transp-grey {
-  background-color: rgba(127, 140, 141, 0.7);
+.border-slate-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(148 163 184 / var(--tw-border-opacity));
 }
 
 .bg-black {
@@ -786,17 +769,56 @@ video {
   background-color: rgb(0 0 0 / var(--tw-bg-opacity));
 }
 
+.bg-blue-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(96 165 250 / var(--tw-bg-opacity));
+}
+
+.bg-blue-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
+}
+
 .bg-gray-200 {
   --tw-bg-opacity: 1;
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
-.p-2\.5 {
-  padding: 0.625rem;
+.bg-gray-700 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(55 65 81 / var(--tw-bg-opacity));
+}
+
+.bg-green-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(74 222 128 / var(--tw-bg-opacity));
+}
+
+.bg-pink-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(236 72 153 / var(--tw-bg-opacity));
+}
+
+.bg-transp-grey {
+  background-color: rgba(127, 140, 141, 0.7);
+}
+
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.bg-yellow-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(250 204 21 / var(--tw-bg-opacity));
 }
 
 .p-2 {
   padding: 0.5rem;
+}
+
+.p-2\.5 {
+  padding: 0.625rem;
 }
 
 .p-4 {
@@ -812,14 +834,14 @@ video {
   padding-right: 1.25rem;
 }
 
-.py-2\.5 {
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
-}
-
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+
+.py-2\.5 {
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
 }
 
 .text-center {
@@ -868,11 +890,6 @@ video {
   position: absolute;
 }
 
-.after\:top-0\.5::after {
-  content: var(--tw-content);
-  top: 0.125rem;
-}
-
 .after\:left-\[2px\]::after {
   content: var(--tw-content);
   left: 2px;
@@ -881,6 +898,11 @@ video {
 .after\:top-0::after {
   content: var(--tw-content);
   top: 0px;
+}
+
+.after\:top-0\.5::after {
+  content: var(--tw-content);
+  top: 0.125rem;
 }
 
 .after\:h-5::after {

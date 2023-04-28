@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "esbuild": "^0.17.3",
-    "purescript": "^0.15.7",
-    "rimraf": "^4.1.1",
-    "sass": "^1.51.0",
+    "esbuild": "^0.17.18",
+    "purescript": "^0.15.8",
+    "rimraf": "^5.0.0",
+    "sass": "^1.62.1",
     "spago": "^0.20.9",
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "^3.3.2"
   },
   "scripts": {
     "clean": "rimraf output && rimraf .spago",

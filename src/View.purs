@@ -6,19 +6,15 @@ import Data.Array ((..), (!!), concat, filter, length, mapWithIndex, intersperse
 import Data.Int as Int
 import Data.Maybe (Maybe(..))
 import Data.Number.Format (toStringWith, fixed)
-import Neuron.Model (Dialog(..), Model, Msg(..), Pattern, mask, rulerPositions)
+import Neuron.Model (Dialog(..), Model, Pattern, RulerPositions, mask, rulerPositions)
+import Neuron.Msg (Msg(..))
 import Neuron.Util ((!))
+import Neuron.UI as UI
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, px, translate)
-
-buttonClass :: String
-buttonClass = "text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-800"
-
-inputNumberClass :: String
-inputNumberClass = "inline-block w-48 border text-4xl rounded-lg p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
 
 patternColor :: Int -> String
 patternColor = case _ of
@@ -27,30 +23,36 @@ patternColor = case _ of
   2 -> "#EC4899"
   _ -> "#FACC15"
 
-showEditor :: Model -> Html Msg
-showEditor { patterns, currentPattern } =
-  H.div [ H.class_ "absolute w-full h-full flex items-center justify-center bg-transp-grey inset-0 z-50" ]
-    [ H.div [ H.class_ "bg-black text-white rounded block border-2" ]
-        [ H.div [ H.class_ "p-4 min-h-8 border-b-2" ]
-            [ H.div [ H.class_ "text-4xl font-medium inline-block" ] [ H.text "Modifier le motif" ]
-            ]
-        , H.div [ H.class_ "p-6 border-b-2" ] [ body ]
-        , H.div [ H.class_ "p-4 text-right" ] --[H.class_ "ui-dialog-buttons"]
-            [ H.button
-                [ H.class_ $ buttonClass <> " mr-4"
-                , E.onClick \_ -> ResetPattern
-                ]
-                [ H.text "Réinitialiser"
-                ]
-            , H.button
-                [ H.class_ buttonClass
-                , E.onClick \_ -> OpenDialog NoDialog
-                ]
-                [ H.text "Ok"
-                ]
-            ]
+showNeuron ∷ ∀msg. Int → Html msg
+showNeuron k =
+  H.div [ H.class_ "inline-block w-8 h-8" ]
+    [ H.svg [ H.class_ "w-full h-full" ]
+        [ H.use [ P.href $ "#neuron-" <> show k ]]
+    ]
+
+drawRulerSymbol :: ∀msg. Number -> Number -> Int -> Html msg
+drawRulerSymbol x y color =
+  H.g [H.style "transform" $ translate (px $ x * 100.0) (px $ 25.0 - y * 5.0)]
+    [ H.rect [P.x (-2.5), P.y 0.0, P.width "5", P.height "5", P.fill (patternColor color)]
+    , H.text_ (show $ color * 3) [P.x (-1.0), P.y (4.5), H.attr "font-size" "0.3rem"] 
+    ]
+
+drawRuler :: ∀msg. Boolean -> RulerPositions -> Html msg
+drawRuler small res =
+    H.div [H.class_ $ "border " <> if small then "w-[40vw]" else  "w-[75vw]"]
+    [ H.svg [P.viewBox (-10) 0 120 30]
+        [ H.rect [P.x (-10.0), P.y 0.0, P.width "120", P.height "40", P.fill "#B0FFB0"]
+        , H.rect [P.x (-10.0), P.y 0.0, P.width $ show $ 7.5 + res.zero * 100.0, P.height "40", P.fill "#FFB0B0"]
+        , H.g [] $ res.graduation <#> \{x} ->
+            H.line [ P.x1 (x*100.0-2.5), P.x2 (x*100.0-2.5), P.y1 0.0, P.y1 30.0
+                   , P.strokeWidth 0.2, P.stroke "#808080", P.strokeDasharray "0.5"] 
+        , H.g [] $
+            res.symbols <#> \{symbol, x, y} -> drawRulerSymbol x y symbol
         ]
     ]
+
+showEditor :: Model -> Html Msg
+showEditor { patterns, currentPattern } = UI.dialog "Modifier le motif" [body] buttons
   where
   body =
     H.div [ H.class_ "flex flex-row items-center gap-8" ]
@@ -65,7 +67,7 @@ showEditor { patterns, currentPattern } =
                 , H.class_ "sr-only peer"
                 , E.onChecked \_ -> TogglePattern i
                 ]
-              , H.div [H.class_ "w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"] []  
+              , H.div [H.class_ UI.checkboxClass] []  
               ]
             , drawMiniPattern i (i == currentPattern) pattern
             ]
@@ -88,41 +90,17 @@ showEditor { patterns, currentPattern } =
             , E.onClick \_ -> ChangePixel i
             ]
             []
+  buttons =
+    [ { name: "Réinitialiser", onClick: ResetPattern }
+    , { name: "Ok", onClick: OpenDialog NoDialog }
+    ]
 
 neuronDialog :: Model -> Int -> Int -> Html Msg
-neuronDialog { editMode, states, currentState, patterns } i j =
-  H.div [ H.class_ "absolute w-full h-full flex items-center justify-center bg-transp-grey inset-0 z-50" ]
-    [ H.div [ H.class_ "bg-black text-white rounded block border-2" ]
-        [ H.div [ H.class_ "p-4 min-h-8 border-b-2" ]
-            [ H.div [ H.class_ "text-4xl font-medium inline-block" ] [ H.text title ]
-            ]
-        , H.div [ H.class_ "p-6 border-b-2" ] [ body ]
-        , H.div [ H.class_ "p-4 text-right" ]
-            [ H.button
-                [ H.class_ $ buttonClass <> " mr-4"
-                , E.onClick \_ -> ToggleEditMode
-                ]
-                [ H.text "Editer"
-                ]
-            , H.button
-                [ H.class_ $ buttonClass <> " mr-4"
-                , E.onClick \_ -> RunLearning
-                ]
-                [ H.text "Apprendre"
-                ]
-            , H.button
-                [ H.class_ buttonClass
-                , E.onClick \_ -> OpenDialog NoDialog
-                ]
-                [ H.text "Ok"
-                ]
-            ]
-        ]
-    ]
+neuronDialog { editMode, states, currentState, patterns } i j = UI.dialog title [body] buttons
   where
   body = H.div [H.class_ "flex flex-col"]
     [ drawCalculus
-    , drawRuler
+    , ruler
     , H.div [H.class_ "text-4xl"]
       [ H.text $ "Nombre d'itérations: " <> show st.iter
       , H.when (length states > 1) \_ ->
@@ -156,7 +134,7 @@ neuronDialog { editMode, states, currentState, patterns } i j =
           weights # mapWithIndex \k weight ->
             H.span []
               [ H.input
-                  [ H.class_ inputNumberClass
+                  [ H.class_ UI.inputNumberClass
                   , P.type_ "number"
                   , P.value (show weight)
                   , E.onValueChange $ ChangeWeight i j k
@@ -181,7 +159,7 @@ neuronDialog { editMode, states, currentState, patterns } i j =
     , H.text "Seuil: "
     , if editMode then
         H.input
-          [ H.class_ inputNumberClass
+          [ H.class_ UI.inputNumberClass
           , P.type_ "number"
           , P.value (show threshold)
           , E.onValueChange $ ChangeThreshold i j
@@ -190,31 +168,39 @@ neuronDialog { editMode, states, currentState, patterns } i j =
         H.text (show threshold)
     ]
 
-  showNeuron k =
-    H.div [ H.class_ "inline-block w-8 h-8" ]
-      [ H.svg [ H.class_ "w-full h-full" ]
-          [ H.use [ P.href $ "#neuron-" <> show k ]]
-      ]
+  ruler = drawRuler false $ rulerPositions patterns st i j
 
-  drawRulerSymbol x y color =
-    H.g [H.style "transform" $ translate (px $ x * 100.0) (px $ 25.0 - y * 5.0)]
-      [ H.rect [P.x (-2.5), P.y 0.0, P.width "5", P.height "5", P.fill (patternColor color)]
-      , H.text_ (show $ color * 3) [P.x (-1.0), P.y (4.5), H.attr "font-size" "0.3rem"] 
-      ]
+  buttons =
+    [ { name: "Editer", onClick: ToggleEditMode }
+    , { name: "Apprendre", onClick: RunLearning }
+    , { name: "Ok", onClick: OpenDialog NoDialog }
+    ]
 
-  res = rulerPositions patterns st i j
-  
-  drawRuler =
-    H.div [H.class_ "border w-halfscreen"]
-    [ H.svg [P.viewBox (-10) 0 120 30]
-        [ H.rect [P.x (-10.0), P.y 0.0, P.width "120", P.height "40", P.fill "#B0FFB0"]
-        , H.rect [P.x (-10.0), P.y 0.0, P.width $ show $ 7.5 + res.zero * 100.0, P.height "40", P.fill "#FFB0B0"]
-        , H.g [] $ res.graduation <#> \{x} ->
-            H.line [ P.x1 (x*100.0-2.5), P.x2 (x*100.0-2.5), P.y1 0.0, P.y1 30.0
-                   , P.strokeWidth 0.2, P.stroke "#808080", P.strokeDasharray "0.5"] 
-        , H.g [] $
-            res.symbols <#> \{symbol, x, y} -> drawRulerSymbol x y symbol
-        ]
+allNeuronsDialog :: Model -> Html Msg
+allNeuronsDialog { states, currentState, patterns } = UI.dialog "Neurones de sortie" [body] buttons
+  where
+  body = H.div [H.class_ "flex flex-col"]
+    [ H.div [H.class_ "grid grid-cols-2 gap-8"] $
+        [0, 1, 2, 3] <#> drawRuler true <<< rulerPositions patterns st 2
+    , H.div [H.class_ "h-24 mt-12 text-4xl grid grid-cols-2 gap-8"]
+      [ H.text $ "Nombre d'itérations: " <> show st.iter
+      , H.when (length states > 1) \_ ->
+          H.div []
+            [ UI.button "Lancer" RunSimulation
+            , H.input [ H.class_ "h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                  , P.type_ "range", P.min 0, P.max (length states - 1)
+                  , P.value (show currentState)
+                  , E.onValueChange ChangeCurrentState
+                  ]
+            ]
+      ]
+    ]
+
+  st = states ! currentState
+
+  buttons =
+    [ { name: "Apprendre", onClick: RunLearning }
+    , { name: "Ok", onClick: OpenDialog NoDialog }
     ]
 
 drawPattern :: Maybe Int -> Pattern -> Html Msg
@@ -316,14 +302,16 @@ view model@{ patterns, states, currentState, currentPattern, selectedInput, dial
     [ H.div [ H.class_ "flex flew-row" ]
         [ H.div [ H.class_ "w-1/4" ]
             [ drawPattern selectedInput (patterns ! currentPattern)
+            , UI.button "Afficher les réglettes" (OpenDialog AllNeuronsDialog) 
+            , UI.button "Réinitialiser" Reset  
             ]
         , H.div [ H.class_ "w-3/4 relative" ] [ showNetwork ]
-
         ]
     , case dialog of
         NoDialog -> H.empty
         EditorDialog -> showEditor model
         NeuronDialog i j -> neuronDialog model i j
+        AllNeuronsDialog -> allNeuronsDialog model
     ]
 
   where
@@ -366,11 +354,6 @@ view model@{ patterns, states, currentState, currentPattern, selectedInput, dial
                 , P.fill $ patternColor i
                 , E.onClick \_ -> OpenDialog (NeuronDialog 2 i)
                 ]
-            -- ,   H.text_ (show value) [P.x (-2.5), P.y 2.0, H.attr "font-size" "0.3rem", H.attr "pointer-events" "none"]
-            -- ,   H.text_ ("≥" <> show threshold) [P.x (-2.5), P.y (-5.5), H.attr "font-size" "0.2rem"]
-            --       else
-            --         0.2 + 0.2 * Int.toNumber row 
-
             , if value > 0.0 then
                 H.text_ "✓"
                   [ P.x 20.0

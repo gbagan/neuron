@@ -6,36 +6,20 @@ import Data.Array ((..), elem, filter, mapWithIndex, snoc, sortWith, zipWith)
 import Data.Foldable (foldl, sum, minimum, maximum)
 import Data.Int (floor, ceil)
 import Data.Int as Int
-import Data.Lens (Lens', (.~), (%~))
-import Data.Lens.Index (ix)
+import Data.Lens (Lens')
 import Data.Lens.Record (prop)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Number as Number
-import Neuron.Patterns
-  ( pattern01
-  , pattern02
-  , pattern03
-  , pattern04
-  , pattern31
-  , pattern32
-  , pattern33
-  , pattern34
-  , pattern61
-  , pattern62
-  , pattern63
-  , pattern64
-  , pattern91
-  , pattern92
-  , pattern93
-  , pattern94
-  , emptyPattern
-  )
+import Neuron.Patterns ( pattern01, pattern02, pattern03, pattern04
+                       , pattern31, pattern32, pattern33, pattern34
+                       , pattern61, pattern62, pattern63, pattern64
+                       , pattern91, pattern92, pattern93, pattern94
+                       , emptyPattern)
 import Neuron.Util (count, (!), map2)
 import Type.Proxy (Proxy(..))
 
 type Pattern = { symbol :: Int, pattern :: Array Boolean, selected :: Boolean }
 
-data Dialog = EditorDialog | NeuronDialog Int Int | NoDialog
+data Dialog = EditorDialog | NeuronDialog Int Int | NoDialog | AllNeuronsDialog
 
 type State =
   { hiddenThresholds :: Array Number
@@ -205,11 +189,14 @@ runLearning m@{ states } = m { states = go 0 [] (states ! 0) }
               | n `elem` iterList = go (n + 1) (acc `snoc` st) (runStep m st)
               | otherwise = go (n+1) acc (runStep m st)
 
-rulerPositions :: Array Pattern -> State -> Int -> Int ->
-                    { zero :: Number
-                    , symbols :: Array { symbol :: Int, x :: Number, y :: Number }
-                    , graduation :: Array { value :: Int, x :: Number }
-                    }
+
+type RulerPositions = 
+  { zero :: Number
+  , symbols :: Array { symbol :: Int, x :: Number, y :: Number }
+  , graduation :: Array { value :: Int, x :: Number }
+  }
+
+rulerPositions :: Array Pattern -> State -> Int -> Int -> RulerPositions                    
 rulerPositions patterns st i j =
   let
     values = st.output <#> \{hidden, final} -> if i == 1 then hidden ! j else final ! j
@@ -228,53 +215,3 @@ rulerPositions patterns st i j =
     , symbols: (foldl go {prev: -0.1, height: 0.0, acc: []} t).acc
     , graduation: floor minX .. ceil maxX <#> \k -> {value: k, x: (Int.toNumber k - minX) / (maxX - minX)}
     }
-
-data Msg
-  = SelectInput (Maybe Int)
-  | SelectPattern Int
-  | ChangeWeight Int Int Int String
-  | ChangeThreshold Int Int String
-  | OpenDialog Dialog
-  | TogglePattern Int
-  | ChangePixel Int
-  | ResetPattern
-  | ToggleEditMode
-  | RunLearning
-  | ChangeCurrentState String
-
-update :: Msg -> Model -> Model
-update msg model = case msg of
-  SelectInput i -> model { selectedInput = i }
-  SelectPattern i -> simulate $ model { currentPattern = i }
-  ChangeWeight i j k s -> case Number.fromString s of
-    Nothing -> model
-    Just val ->
-      simulate $ model #
-        ( _states <<< ix model.currentState <<< (if i == 1 then _hiddenWeights else _finalWeights) <<< ix j <<< ix k
-        ) .~ val
-        # _states %~ (\sts -> [(sts ! model.currentState){iter = 0}])
-        # _currentState .~ 0
-  ChangeThreshold i j s -> case Number.fromString s of
-    Nothing -> model
-    Just val ->
-      simulate $ model #
-        ( _states <<< ix model.currentState <<< (if i == 1 then _hiddenThresholds else _finalThresholds) <<< ix j
-        ) .~ val
-        # _states %~ (\sts -> [(sts ! model.currentState){iter = 0}])
-        # _currentState .~ 0
-  OpenDialog d -> model { dialog = d }
-  TogglePattern i -> model # (_patterns <<< ix i <<< _selected) %~ not
-  ChangePixel i -> simulate $ model #
-    ( _patterns
-        <<< ix model.currentPattern
-        <<< prop (Proxy :: _ "pattern")
-        <<< ix i
-    ) %~ not
-  ToggleEditMode -> model { editMode = not model.editMode }
-  ResetPattern -> simulate $ model # (_patterns <<< ix model.currentPattern) .~
-    (initPatterns ! model.currentPattern)
-  RunLearning -> runLearning model
-  ChangeCurrentState s -> case Int.fromString s of
-    Nothing -> model
-    Just i -> model { currentState = i }
-
