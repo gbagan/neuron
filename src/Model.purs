@@ -2,8 +2,8 @@ module Neuron.Model where
 
 import Prelude
 
-import Data.Array ((..), elem, filter, mapWithIndex, snoc, sortWith, zipWith)
-import Data.Foldable (foldl, sum, minimum, maximum)
+import Data.Array ((..), elem, filter, mapWithIndex, snoc, sortWith)
+import Data.Foldable (foldl, minimum, maximum)
 import Data.Int (floor, ceil)
 import Data.Int as Int
 import Data.Lens (Lens')
@@ -139,7 +139,7 @@ init =
   , selectedInput: Nothing
   , dialog: NoDialog
   , editMode: false
-  } # simulate
+  }
 
 countPixels :: Int -> Array Boolean -> Int
 countPixels i =
@@ -152,43 +152,11 @@ countPixels i =
           b && if i < 3 then col == i else row == i - 3
     )
 
-updateInput :: Array Pattern -> Array (Array Number)
-updateInput =
-  map \{ pattern } ->
-    0..5 <#> \i -> Int.toNumber $ countPixels i pattern
-
-updateOutput :: Array (Array Number) -> State -> State
-updateOutput inputs st = st { output = output }
-  where
-  output = inputs <#> \input ->
-    let
-      hidden = map2 st.hiddenThresholds st.hiddenWeights \t hw ->
-        max 0.0 (sum (zipWith (*) input hw) - t)
-      final = map2 st.finalThresholds st.finalWeights \t fw ->
-        sum (zipWith (*) hidden fw) - t
-    in
-      { final, hidden }
-
-simulate :: Model -> Model
-simulate model@{ states, patterns } = model { inputs = inputs, states = states <#> updateOutput inputs }
-  where
-  inputs = updateInput patterns
-
-foreign import runStepImpl :: Array (Array Boolean) -> Model -> State -> State
-
-runStep :: Model -> State -> State
-runStep m@{ inputs } st = updateOutput inputs $ runStepImpl mask m st
-
-iterList :: Array Int
-iterList = [0, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000, 60000]
-
-runLearning :: Model -> Model
-runLearning m@{ states } = m { states = go 0 [] (states ! 0) }
-  where
-  go n acc st | n==60000 = acc `snoc` st
-              | n `elem` iterList = go (n + 1) (acc `snoc` st) (runStep m st)
-              | otherwise = go (n+1) acc (runStep m st)
-
+-- firstAvailableHeight [0, 1, 3, 5] = 2
+firstAvailableHeight :: Array Int -> Int
+firstAvailableHeight xs = go 0 where
+  go x | x `elem` xs = go (x+1)
+       | otherwise = x
 
 type RulerPositions = 
   { zero :: Number
@@ -203,15 +171,21 @@ rulerPositions patterns st i j =
     minX = fromMaybe 0.0 $ minimum values
     maxX = fromMaybe 0.0 $ maximum values
     values' = values <#> \v -> (v - minX) / (maxX - minX)
-    t = map2 patterns values' (\{selected, symbol} value -> {selected, symbol, value})
+    symbols = map2 patterns values' (\{selected, symbol} value -> {selected, symbol, value})
           # filter _.selected
           # map (\{symbol, value} -> {symbol, value})
           # sortWith _.value
-    go {prev, height, acc} {symbol, value}
-      | value - prev >= 0.05 = {prev: value, height: 1.0, acc: acc `snoc` {symbol, x: value, y: 0.0}}
-      | otherwise =  {prev, height: height+1.0, acc: acc `snoc` {symbol, x: value, y: height}}
+          # foldl go []
+          # map (\s -> s{y = Int.toNumber s.y})
+    go acc {symbol, value} =
+      let previousHeights = acc
+                    # filter (\{x} -> value - x <= 0.049)
+                    # map _.y
+          y = firstAvailableHeight previousHeights
+      in
+        acc `snoc` {symbol, x: value, y}
   in
     { zero: - minX / (maxX - minX)
-    , symbols: (foldl go {prev: -0.1, height: 0.0, acc: []} t).acc
+    , symbols
     , graduation: floor minX .. ceil maxX <#> \k -> {value: k, x: (Int.toNumber k - minX) / (maxX - minX)}
     }

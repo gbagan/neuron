@@ -13,7 +13,8 @@ data Msg
   | ChangePixel Int
   | ResetPattern
   | ToggleEditMode
+  | Simulate
   | RunLearning
   | RunSimulation
   | ChangeCurrentState String
-  | Reset 
+  | Reset

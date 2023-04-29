@@ -88,8 +88,7 @@ showEditor { patterns, currentPattern } = UI.dialog "Modifier le motif" [body] b
             , H.style "left" $ pc $ Int.toNumber col / 6.0
             , H.style "top" $ pc $ Int.toNumber row / 9.0
             , E.onClick \_ -> ChangePixel i
-            ]
-            []
+            ] []
   buttons =
     [ { name: "Réinitialiser", onClick: ResetPattern }
     , { name: "Ok", onClick: OpenDialog NoDialog }
