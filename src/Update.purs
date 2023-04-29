@@ -1,5 +1,6 @@
 module Neuron.Update
-  ( update
+  ( simulate
+  , update
   )
   where
 
@@ -105,8 +106,6 @@ update msg = case msg of
 
   ResetPattern -> modify_ $ simulate <<< \model -> model # (_patterns <<< ix model.currentPattern) .~
     (initPatterns ! model.currentPattern)
-
-  Simulate -> modify_ simulate
 
   RunLearning -> modify_ runLearning
 

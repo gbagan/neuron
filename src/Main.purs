@@ -5,12 +5,11 @@ import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Pha.App (app)
 import Neuron.Model (init)
-import Neuron.Msg (Msg(..))
-import Neuron.Update (update)
+import Neuron.Update (simulate, update)
 import Neuron.View (view)
 
 main :: Effect Unit
-main = app { init: { state: init, action: Just Simulate}
+main = app { init: { state: simulate init, action: Nothing}
            , eval: identity
            , view
            , update
