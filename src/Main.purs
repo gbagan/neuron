@@ -9,7 +9,7 @@ import Neuron.Update (simulate, update)
 import Neuron.View (view)
 
 main :: Effect Unit
-main = app { init: { state: simulate init, action: Nothing}
+main = app { init: { state: simulate init, action: Nothing }
            , eval: identity
            , view
            , update

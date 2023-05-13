@@ -119,4 +119,4 @@ update msg = case msg of
     Nothing -> pure unit
     Just i -> modify_ _{ currentState = i }
 
-  Reset -> put init
+  Reset -> put $ simulate init
