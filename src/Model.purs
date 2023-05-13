@@ -41,6 +41,7 @@ type Model =
   , editMode :: Boolean
   }
 
+--- lenses
 _patterns :: Lens' Model (Array Pattern)
 _patterns = prop (Proxy :: _ "patterns")
 
@@ -129,6 +130,8 @@ initState =
   , iter: 0
   }
 
+-- | état initial, pas utilisable dans l'état actuel. On doit appliquer `simulate` dessus
+-- | pour avoir un modèle cohérent
 init :: Model
 init =
   { patterns: initPatterns
@@ -141,6 +144,7 @@ init =
   , editMode: false
   }
 
+-- | compte le nombre de pixels que capte le neurone d'entrée i sur un pattern donné
 countPixels :: Int -> Array Boolean -> Int
 countPixels i =
   count identity <<< mapWithIndex
@@ -152,7 +156,9 @@ countPixels i =
           b && if i < 3 then col == i else row == i - 3
     )
 
--- firstAvailableHeight [0, 1, 3, 5] = 2
+-- | ```haskell
+-- | firstAvailableHeight [0, 1, 2, 4, 6, 7] = 3
+-- | ````
 firstAvailableHeight :: Array Int -> Int
 firstAvailableHeight xs = go 0 where
   go x | x `elem` xs = go (x+1)
@@ -164,6 +170,10 @@ type RulerPositions =
   , graduation :: Array { value :: Int, x :: Number }
   }
 
+-- | Calcule un ensemble d'information utile pour dessiner une réglette.
+-- | Les positions horizontales sont compris dans l'intervalle [0, 1]
+-- | `zero` indique la position horizontal de zero
+-- | todo à finir
 rulerPositions :: Array Pattern -> State -> Int -> Int -> RulerPositions                    
 rulerPositions patterns st i j =
   let

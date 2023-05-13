@@ -25,12 +25,22 @@ import Neuron.Util (map2, (!))
 import Pha.Update (Update, get, modify_, put, delay)
 import Type.Proxy (Proxy(..))
 
+-- | nombre d'itérations pour l'apprentissage
+nbIters :: Int
+nbIters = 60000
+
+-- | itérations clés à retenir pour l'apprentissage
+iterList :: Array Int
+iterList = [0, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000, 60000]
+
+-- | désapprend et garde uniquement un état, celui qui était l'état courant
 keepOneState :: Model -> Model
 keepOneState model = 
       model # _states %~ (\sts -> [(sts ! model.currentState){iter = 0}])
             # _currentState .~ 0
 
 
+-- | calcule la valeur des neuronnes d'entrée à partir d'une liste de patterns
 updateInput :: Array Pattern -> Array (Array Number)
 updateInput =
   map \{ pattern } ->
@@ -54,13 +64,10 @@ foreign import runStepImpl :: Array (Array Boolean) -> Model -> State -> State
 runStep :: Model -> State -> State
 runStep m@{ inputs } st = updateOutput inputs $ runStepImpl mask m st
 
-iterList :: Array Int
-iterList = [0, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000, 60000]
-
 runLearning :: Model -> Model
 runLearning m@{ states } = m { states = go 0 [] (states ! 0) }
   where
-  go n acc st | n==60000 = acc `snoc` st
+  go n acc st | n==nbIters = acc `snoc` st
               | n `elem` iterList = go (n + 1) (acc `snoc` st) (runStep m st)
               | otherwise = go (n+1) acc (runStep m st)
 
