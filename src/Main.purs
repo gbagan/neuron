@@ -9,10 +9,8 @@ import Neuron.Update (simulate, update)
 import Neuron.View (view)
 
 main :: Effect Unit
-main = app { init: { state: simulate init, action: Nothing }
-           , eval: identity
+main = app { init: { model: simulate init, msg: Nothing }
            , view
            , update
-           , subscriptions: []
            , selector: "#root"
            }

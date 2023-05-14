@@ -78,7 +78,7 @@ simulate model@{ states, patterns } = model { inputs = inputs, states = states <
   inputs = updateInput patterns
 
 
-update :: Msg -> Update Model Aff Unit
+update :: Msg -> Update Model Msg Aff Unit
 update msg = case msg of
   SelectInput i -> modify_ _{ selectedInput = i }
 

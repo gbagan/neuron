@@ -301,7 +301,7 @@ view model@{ patterns, states, currentState, currentPattern, selectedInput, dial
     [ H.div [ H.class_ "flex flew-row" ]
         [ H.div [ H.class_ "w-1/4" ]
             [ drawPattern selectedInput (patterns ! currentPattern)
-            , UI.button "Afficher les réglettes" (OpenDialog AllNeuronsDialog) 
+            , UI.button "Afficher les réglettes" (OpenDialog AllNeuronsDialog)
             , UI.button "Réinitialiser" Reset  
             ]
         , H.div [ H.class_ "w-3/4 relative" ] [ showNetwork ]
