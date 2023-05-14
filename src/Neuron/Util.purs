@@ -1,8 +1,8 @@
 module Neuron.Util where
 
-import Prelude
+import Relude
 
-import Data.Array (foldl, zipWith, unsafeIndex)
+import Data.Array (unsafeIndex)
 import Partial.Unsafe (unsafePartial)
 
 count :: ∀a. (a → Boolean) → Array a → Int

@@ -1,17 +1,14 @@
 { name = "purescript"
 , dependencies =
-  [ "aff"
-  , "arrays"
+  [ "arrays"
   , "datetime"
-  , "effect"
   , "foldable-traversable"
   , "integers"
-  , "maybe"
   , "numbers"
   , "partial"
   , "pha"
   , "prelude"
-  , "profunctor-lenses"
+  , "relude"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]

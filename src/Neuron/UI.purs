@@ -1,8 +1,7 @@
 module Neuron.UI where
 
-import Prelude
+import Relude
 
-import Data.Array (mapWithIndex)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Events as E

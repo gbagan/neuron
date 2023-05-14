@@ -1,21 +1,16 @@
 module Neuron.Model where
 
-import Prelude
+import Relude
 
-import Data.Array ((..), elem, filter, mapWithIndex, snoc, sortWith)
-import Data.Foldable (foldl, minimum, maximum)
-import Data.Int (floor, ceil)
+import Data.Array ((..))
+import Data.Int (ceil)
 import Data.Int as Int
-import Data.Lens (Lens')
-import Data.Lens.Record (prop)
-import Data.Maybe (Maybe(..), fromMaybe)
 import Neuron.Patterns ( pattern01, pattern02, pattern03, pattern04
                        , pattern31, pattern32, pattern33, pattern34
                        , pattern61, pattern62, pattern63, pattern64
                        , pattern91, pattern92, pattern93, pattern94
                        , emptyPattern)
 import Neuron.Util (count, (!), map2)
-import Type.Proxy (Proxy(..))
 
 type Pattern = { symbol :: Int, pattern :: Array Boolean, selected :: Boolean }
 

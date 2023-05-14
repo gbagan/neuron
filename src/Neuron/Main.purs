@@ -1,8 +1,6 @@
-module Main where
+module Neuron.Main where
 
-import Prelude
-import Data.Maybe (Maybe(..))
-import Effect (Effect)
+import Relude hiding (view)
 import Pha.App (app)
 import Neuron.Model (init)
 import Neuron.Update (simulate, update)

@@ -1,6 +1,6 @@
 module Neuron.Msg where
 
-import Data.Maybe (Maybe)
+import Relude
 import Neuron.Model (Dialog)
 
 data Msg

@@ -4,25 +4,20 @@ module Neuron.Update
   )
   where
 
-import Prelude
-import Data.Array (elem, snoc, zipWith, (..))
-import Data.Foldable (sum)
+import Relude
+
+import Data.Array ((..))
 import Data.FoldableWithIndex (forWithIndex_)
 import Data.Int as Int
-import Data.Lens ((.~), (%~))
-import Data.Lens.Index (ix)
-import Data.Lens.Record (prop)
-import Data.Maybe (Maybe(..))
 import Data.Number as Number
 import Data.Time.Duration (Milliseconds(..))
-import Effect.Aff (Aff)
 import Neuron.Model (Model, State, Pattern
                     , _currentState, _finalThresholds, _finalWeights, _hiddenThresholds, _hiddenWeights
                     , _patterns, _states, _selected
                     , init, initPatterns, mask, countPixels)
 import Neuron.Msg (Msg(..))
 import Neuron.Util (map2, (!))
-import Pha.Update (Update, get, modify_, put, delay)
+import Pha.Update (Update, delay)
 import Type.Proxy (Proxy(..))
 
 -- | nombre d'itérations pour l'apprentissage

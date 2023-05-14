@@ -1,7 +1,6 @@
 module Neuron.Patterns where
 
-import Prelude
-import Data.Array (replicate)
+import Relude
 
 pattern01 :: Array Boolean
 pattern01 =

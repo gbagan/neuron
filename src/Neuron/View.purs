@@ -1,15 +1,14 @@
 module Neuron.View (view) where
 
-import Prelude
+import Relude
 
-import Data.Array ((..), (!!), concat, filter, length, mapWithIndex, intersperse)
+import Data.Array ((..), intersperse)
 import Data.Int as Int
-import Data.Maybe (Maybe(..))
 import Data.Number.Format (toStringWith, fixed)
 import Neuron.Model (Dialog(..), Model, Pattern, RulerPositions, mask, rulerPositions)
 import Neuron.Msg (Msg(..))
-import Neuron.Util ((!))
 import Neuron.UI as UI
+import Neuron.Util ((!))
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
@@ -81,8 +80,8 @@ showEditor { patterns, currentPattern } = UI.dialog "Modifier le motif" [body] b
           col = i `mod` 6
         in
           H.div
-            [ H.class_ "absolute pattern-pixel"
-            , H.class' "black" b
+            [ H.class_ "absolute"
+            , H.style "background" $ if b then "black" else "white"
             , H.style "width" "16.66666666%"
             , H.style "height" "11.1111111111%"
             , H.style "left" $ pc $ Int.toNumber col / 6.0
@@ -214,9 +213,12 @@ drawPattern selectedCaptor { pattern } =
         capt = Just (row `div` 3 + 3) == selectedCaptor || Just (col `div` 2) == selectedCaptor
       in
         H.div
-          [ H.class_ "absolute pointer-events-none pattern-pixel"
-          , H.class' "black" b
-          , H.class' "selected" capt
+          [ H.class_ "absolute pointer-events-none"
+          , H.style "background" $ case b, capt of
+              false, false -> "white"
+              true, false -> "black"
+              false, true -> "lightgreen"
+              true, true -> "darkgreen"
           , H.style "width" "16.66666666%"
           , H.style "height" "11.1111111111%"
           , H.style "left" $ pc $ Int.toNumber col / 6.0
