@@ -98,7 +98,7 @@ export const countPixels = (i: number, pattern: boolean[]) =>
   sum(pattern.map((b, j) => {
     const row = j / 18 | 0;
     const col = (j % 6) / 2 | 0;
-    return b && (i < 3 ? col == i : row == i - 3)
+    return b && (i < 3 ? col === i : row === i - 3)
   }));
 
 // todo
@@ -124,7 +124,7 @@ type RulerPositions = {
 }
 
 export function rulerPositions(patterns: Pattern[], st: State, layer: number, j: number): RulerPositions {
-  const values = st.output.map(({ hidden, final }) => layer == 1 ? hidden[j] : final[j]);
+  const values = st.output.map(({ hidden, final }) => layer === 1 ? hidden[j] : final[j]);
   const minX = min(values) ?? 0;
   const maxX = max(values) ?? 0;
   const values2 = values.map(v => (v - minX) / (maxX - minX)); // todo

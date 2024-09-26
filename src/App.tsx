@@ -75,7 +75,7 @@ const App: Component = () => {
 
   const changeWeight = (layer: number, i: number, j: number, val: number) => {
     batch(() => {
-      setModel("states", model.currentState, layer == 1 ? "hiddenWeights" : "finalWeights", i, j, val);
+      setModel("states", model.currentState, layer === 1 ? "hiddenWeights" : "finalWeights", i, j, val);
       keepOneState();
       simulate();
     });
@@ -83,19 +83,15 @@ const App: Component = () => {
 
   const changeThreshold = (layer: number, i: number, val: number) => {
     batch(() => {
-      setModel("states", model.currentState, layer == 1 ? "hiddenThresholds" : "finalThresholds", i, val);
+      setModel("states", model.currentState, layer === 1 ? "hiddenThresholds" : "finalThresholds", i, val);
       keepOneState();
       simulate();
     });
   }
 
-  const learn = () => {
-    setModel("states", runLearning(model));
-  }
+  const learn = () => setModel("states", runLearning(model));
 
-  const changeCurrentState = (i: number) => {
-    setModel("currentState", i);
-  }
+  const changeCurrentState = (i: number) => setModel("currentState", i);
 
   const reset = () => {
     batch(() => {
@@ -142,7 +138,7 @@ const App: Component = () => {
 
   return (
     <>
-      <div class="w-full min-h-screen bg-black flex flew-row items-start justify-around portrait:flex-col">
+      <div class="w-full min-h-screen bg-black flex flew-row items-center justify-around portrait:flex-col">
         <div class="flex flex-col items-center portrait:flex-row">
           <PatternView
             selectedCaptor={model.selectedInput}
@@ -156,11 +152,8 @@ const App: Component = () => {
             <button class="btn" onClick={reset}>Réinitialiser</button>
           </div>      
         </div>
-        <div class="w-3/4 relative portrait:w-full">
-          <Network
-            final={final()}
-            {...networkActions}
-          />
+        <div class="w-2/3 portrait:w-full">
+          <Network final={final()} {...networkActions} />
         </div>
       </div>
       <dialog class="dialog" ref={el => (dialog = el)}>

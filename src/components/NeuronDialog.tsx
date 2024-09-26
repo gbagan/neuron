@@ -6,7 +6,7 @@ import Calculus from "./Calculus";
 const alphabet = "ABCDEF";
 const colors = ["vert", "bleu", "rose", "jaune"];
 
-const title = (layer: number, i: number) => "Neurone " + (layer == 1 ? alphabet[i] : colors[i]);
+const title = (layer: number, i: number) => "Neurone " + (layer === 1 ? alphabet[i] : colors[i]);
 
 type NeuronComponent = Component<{
   layer: number,

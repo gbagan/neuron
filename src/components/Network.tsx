@@ -22,17 +22,17 @@ const Line: LineComponent = props => (
 )
 
 type NetworkComponent = Component<{
-    final: number[],
-    selectInput: (i: number | null) => void,
-    openNeuronDialog: (layer: number, idx: number) => void,
+  final: number[],
+  selectInput: (i: number | null) => void,
+  openNeuronDialog: (layer: number, idx: number) => void,
 }>
 
 const Network: NetworkComponent = props => (
-  <svg viewBox="0 0 150 100">
+  <svg viewBox="0 0 135 100">
     {mask.map((row, i) =>
       <>
-        {row.map((v, j) => 
-          v && <Line layer1={0} layer2={1} row1={j} row2={i} /> 
+        {row.map((v, j) =>
+          v && <Line layer1={0} layer2={1} row1={j} row2={i} />
         )}
       </>
     )}
@@ -64,30 +64,31 @@ const Network: NetworkComponent = props => (
       />
     )}
     {[0, 1, 2, 3, 4, 5].map(i =>
-      <g style={{transform: `translate(10%, ${10+15*i}%)`}}>
+      <g style={{ transform: `translate(15px, ${10 + 15 * i}%)` }}>
         <circle
           r="5"
           fill="white"
+          class="touch-none"
           onPointerEnter={() => props.selectInput(i)}
           onPointerLeave={() => props.selectInput(null)}
         />
-        <Neuron idx={i}/>
+        <Neuron idx={i} />
       </g>
     )}
     {[0, 1, 2, 3, 4, 5].map(i =>
-      <g style={{transform: `translate(40%, ${10+15*i}%)`}}>
+      <g style={{ transform: `translate(60px, ${10 + 15 * i}%)` }}>
         <circle
           r="5"
           fill="white"
           class="cursor-pointer"
           onClick={() => props.openNeuronDialog(1, i)}
         />
-        <Neuron idx={i+6}/>
+        <Neuron idx={i + 6} />
       </g>
     )}
     <Index each={props.final}>
       {(value, i) =>
-        <g style={{transform: `translate(70%, ${20 + 20 * i}%)`}}>
+        <g style={{ transform: `translate(105px, ${20 + 20 * i}%)` }}>
           <circle
             r="5"
             fill={patternColors[i]}
@@ -97,6 +98,7 @@ const Network: NetworkComponent = props => (
           <text
             x="20"
             stroke={value() > 0 ? "green" : "red"}
+            class="select-none"
             font-size="0.4rem"
           >
             {value() > 0 ? "✓" : "⨯"}

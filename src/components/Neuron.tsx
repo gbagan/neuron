@@ -7,7 +7,7 @@ const Neuron: Component<{idx: number}> = props =>
     y="-3.0"
     width="6"
     height="6"
-    class="pointer-events-none"
+    class="pointer-events-none select-none"
   />
 
 export default Neuron;

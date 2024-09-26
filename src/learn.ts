@@ -21,23 +21,23 @@ export const learnOneStep = (st: State, patterns: Pattern[], inputs: number[][],
       const input = inputs[n];
 
       for (let i = 0; i < 4; i++)
-        finalThresholds2[i] += 10 * step * dercost(final[i], i == symbol);
+        finalThresholds2[i] += 10 * step * dercost(final[i], i === symbol);
 
       for (let i = 0; i < 4; i++)
         for (let j = 0; j < 6; j++)
-          finalWeights2[i][j] -= step * dercost(final[i], symbol == i) * hidden[j];
+          finalWeights2[i][j] -= step * dercost(final[i], symbol === i) * hidden[j];
 
       for (let k = 0; k < 6; k++)
         if (hidden[k] > 0)
           for (let j = 0; j < 4; j++)
-            hiddenThresholds2[k] += step * dercost(final[j], symbol == j) * hiddenWeights[j][k];
+            hiddenThresholds2[k] += step * dercost(final[j], symbol === j) * hiddenWeights[j][k];
 
       for (let k = 0; k < 6; k++)
         if (hidden[k] > 0)
             for (let i = 0; i < 6; i++)
               if (mask[k][i])
                 for (let j = 0; j < 4; j++)
-                  hiddenWeights2[k][i] -= step * dercost(final[j], symbol == j) * finalWeights[j][k] * input[i];
+                  hiddenWeights2[k][i] -= step * dercost(final[j], symbol === j) * finalWeights[j][k] * input[i];
         }
   }
   return {

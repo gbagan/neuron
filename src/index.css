@@ -20,7 +20,7 @@
   }
   
   .dialogtitle {
-    @apply p-4 min-h-8 border-b-2 text-2xl font-medium;
+    @apply p-4 min-h-8 border-b-2 text-4xl font-medium;
   }
 
   .largetext {
