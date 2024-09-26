@@ -46,7 +46,7 @@ const NeuronDialog: NeuronComponent = props => {
           idx={props.idx}
           small={false}
         />
-        <div class="text-4xl">Nombre d'itérations: {props.state.iter}</div>
+        <div class="largetext">Nombre d'itérations: {props.state.iter}</div>
         <Show when={props.nbStates > 1}>
           <input
             class="inputrange range-lg"

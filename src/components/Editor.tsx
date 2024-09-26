@@ -16,7 +16,7 @@ type EditorComponent = Component<{
 const Editor: EditorComponent = props => (
   <>
     <div class="dialogtitle">Modifier le motif</div>
-    <div class="dialogbody flex flex-row items-center gap-8">
+    <div class="dialogbody flex flex-row portrait:flex-col items-center gap-8">
       <div class="m-2 overflow-hidden relative bg-white border-4 w-64 h-96">
           <Index each={props.patterns[props.currentPattern].pattern}>
             {(b, i) => (
@@ -40,7 +40,7 @@ const Editor: EditorComponent = props => (
             <div class="flex flex-row items-center">
               <label class="relative inline-flex items-center cursor-pointer">
                 <input
-                  type="checkbox"
+                  type="checkbox rotate-90"
                   checked={pattern().selected}
                   class="sr-only peer"
                   onChange={[props.togglePattern, i]}

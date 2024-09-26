@@ -30,7 +30,7 @@ const AllNeuronsDialog: AllNeuronsComponent = props => (
           )}
         </Index>
       </div>
-      <div class="h-24 mt-12 text-4xl grid grid-cols-2 gap-8">
+      <div class="h-24 mt-12 largetext grid grid-cols-2 gap-8">
         Nombre d'itérations: {props.state.iter}
         <Show when={props.nbStates > 1}>
           <div>

@@ -1,13 +1,13 @@
 import sum from "lodash.sum"
+import min from "lodash.min"
+import max from "lodash.max"
+import range from "lodash.range"
+import { scalarProduct, zipWith } from "./util"
 import {
   emptyPattern, pattern01, pattern02, pattern03, pattern04, pattern31,
   pattern32, pattern33, pattern34, pattern61, pattern62, pattern63,
   pattern64, pattern91, pattern92, pattern93, pattern94
 } from "./patterns"
-import min from "lodash.min"
-import max from "lodash.max"
-import range from "lodash.range"
-import { scalarProduct, zipWith } from "./util"
 
 export type Pattern = {
   symbol: number,
@@ -156,7 +156,7 @@ export function rulerPositions(patterns: Pattern[], st: State, layer: number, j:
 // calcule la valeur des neuronnes d'entrée à partir d'une liste de patterns
 export function updateInput(patterns: Pattern[]): number[][] {
   return patterns.map(({ pattern }) =>
-    range(0, 6).map(i => countPixels(i, pattern))
+    [0, 1, 2, 3, 4, 5].map(i => countPixels(i, pattern))
   )
 }
 
@@ -173,21 +173,21 @@ export function updateOutput(inputs: number[][], st: State): Output {
 }
 
 const initState: () => State = () => ({
-  hiddenThresholds: [8.0, 7.0, 18.0, 6.0, 16.0, 5.0],
+  hiddenThresholds: [8, 7, 18, 6, 16, 5],
   hiddenWeights: [
-    [-1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
-    [1.0, 1.0, 0.0, 0.0, 0.0, -1.0],
-    [0.0, 0.0, 1.0, 1.0, 1.0, 0.0],
-    [0.0, 1.0, 0.0, -1.0, 0.0, 1.0],
-    [1.0, 0.0, 0.0, 0.0, 1.0, 1.0],
-    [0.0, 0.0, 0.0, 1.0, -1.0, 1.0],
+    [-1, 1, 1, 0, 0, 0],
+    [1, 1, 0, 0, 0, -1],
+    [0, 0, 1, 1, 1, 0],
+    [0, 1, 0, -1, 0, 1],
+    [1, 0, 0, 0, 1, 1],
+    [0, 0, 0, 1, -1, 1],
   ],
-  finalThresholds: [7.0, 5.0, 6.0, 5.0],
+  finalThresholds: [7, 5, 6, 5],
   finalWeights: [
-    [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0],
-    [1.0, 1.0, -1.0, 1.0, -1.0, 0.0],
-    [-1.0, 1.0, -1.0, 1.0, 1.0, -1.0],
-    [1.0, 1.0, 1.0, -1.0, -1.0, 0.0],
+    [-1, -1, 1, -1, 1, 1],
+    [1, 1, -1, 1, -1, 0],
+    [-1, 1, -1, 1, 1, -1],
+    [1, 1, 1, -1, -1, 0],
   ],
   output: [],
   iter: 0,

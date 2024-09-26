@@ -11,7 +11,7 @@ type MiniPatternComponent = Component<{
 
 const MiniPattern: MiniPatternComponent = props =>
   <div
-    class="overflow-hidden relative bg-white border-4 border-slate-400 m-2 w-24 h-36"
+    class="overflow-hidden relative bg-white border-4 border-slate-400 m-2 w-16 h-24 lg:w-24 lg:h-36"
     classList={{
       "border-green-500": props.isCurrent,  
       "border-slate-400": !props.isCurrent,

@@ -15,7 +15,7 @@ type CalculusComponent = Component<{
 }>
 
 const Calculus: CalculusComponent = props => (
-  <div class="text-4xl">
+  <div class="largetext">
     <Switch>
       <Match when={props.editMode}>
         <span>
@@ -23,7 +23,7 @@ const Calculus: CalculusComponent = props => (
             {(weight, i) => (
               <>
                 <Show when={i > 0}>
-                  <span class="text-4xl mx-4">+</span>
+                  <span class="mx-1 lg:mx-2 xl:mx-4">+</span>
                 </Show>
                 <span>
                   <input
