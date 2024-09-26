@@ -1,0 +1,32 @@
+{
+  "name": "neuron",
+  "version": "0.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/lodash.max": "^4.0.9",
+    "@types/lodash.min": "^4.0.9",
+    "@types/lodash.range": "^3.2.9",
+    "@types/lodash.sum": "^4.0.9",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "vite-plugin-solid": "^2.8.2"
+  },
+  "dependencies": {
+    "lodash.max": "^4.0.1",
+    "lodash.min": "^4.0.1",
+    "lodash.range": "^3.2.0",
+    "lodash.sum": "^4.0.2",
+    "solid-js": "^1.9.1"
+  }
+}

@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.graphtext {
+  font: bold 12px sans-serif;
+  fill: black;
+}
+
+@layer components {
+  .btn {
+    @apply
+      text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center bg-blue-600
+      hover:bg-blue-700 focus:ring-blue-800;
+  }
+
+  .dialog {
+    @apply rounded-lg shadow backdrop:bg-gray-500 backdrop:bg-opacity-70;
+  }
+  
+  .dialogtitle {
+    @apply p-4 min-h-8 border-b-2 text-4xl font-medium;
+  }
+
+  .dialogbody {
+    @apply p-6 border-b-2
+  }
+
+  .inputrange {
+    @apply w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer;
+  }
+}
