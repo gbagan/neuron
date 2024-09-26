@@ -1,7 +1,7 @@
 import { Component, Index } from "solid-js"
 import { Pattern } from "../model";
 import MiniPattern from "./MiniPattern";
-import { checkboxClass } from "../constants";
+import { toggleClass } from "../constants";
 
 type EditorComponent = Component<{
   patterns: Pattern[],
@@ -40,12 +40,12 @@ const Editor: EditorComponent = props => (
             <div class="flex flex-row items-center">
               <label class="relative inline-flex items-center cursor-pointer">
                 <input
-                  type="checkbox rotate-90"
+                  type="checkbox"
                   checked={pattern().selected}
                   class="sr-only peer"
                   onChange={[props.togglePattern, i]}
                 />
-                <div class={checkboxClass} />
+                <div class={`rotate-90 ${toggleClass}`} />
               </label>
               <MiniPattern
                 pattern={pattern()}

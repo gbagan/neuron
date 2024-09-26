@@ -33,7 +33,6 @@ const App: Component = () => {
     setModel("currentState", 0);
   }
 
-
   const openEditorDialog = () => {
     setModel("dialog", {type: "edit"});
     dialog.showModal();
@@ -51,7 +50,7 @@ const App: Component = () => {
 
   const closeDialog = () => {
     setModel("dialog", {type :"none"});
-    dialog.close()  
+    dialog.close();
   }
 
   const selectInput = (i: number | null) => setModel("selectedInput", i);

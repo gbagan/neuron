@@ -1,6 +1,4 @@
 import { Component, Index, Match, Show, Switch } from "solid-js";
-import { Pattern, State } from "../model";
-import Neuron from "./Neuron";
 
 const weightToString = (weight: number) =>
   weight === 1 ? "" : weight === -1 ? "-" : weight.toFixed(3); 
@@ -23,7 +21,7 @@ const Calculus: CalculusComponent = props => (
             {(weight, i) => (
               <>
                 <Show when={i > 0}>
-                  <span class="mx-1 lg:mx-2 xl:mx-4">+</span>
+                  <span class="mx-4">+</span>
                 </Show>
                 <span>
                   <input
