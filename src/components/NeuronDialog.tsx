@@ -29,8 +29,8 @@ const NeuronDialog: NeuronComponent = props => {
 
   return (
     <>
-      <div class="dialogtitle">{title(props.layer, props.idx)}</div>
-      <div class="dialogbody flex flex-col">
+      <div class="dialog-title">{title(props.layer, props.idx)}</div>
+      <div class="dialog-body flex flex-col">
         <Calculus
           layer={props.layer}
           weights={props.layer === 1 ? props.state.hiddenWeights[props.idx] : props.state.finalWeights[props.idx]}
@@ -58,10 +58,10 @@ const NeuronDialog: NeuronComponent = props => {
           />
         </Show>
       </div>
-      <div class="p-4 text-right">
+      <div class="dialog-buttons">
         <button class="btn" onClick={edit}>Editer</button>
-        <button class="btn ml-4" onClick={props.learn}>Apprendre</button>
-        <button class="btn ml-4" onClick={props.closeDialog}>OK</button>
+        <button class="btn" onClick={props.learn}>Apprendre</button>
+        <button class="btn" onClick={props.closeDialog}>OK</button>
       </div>
     </>
   )

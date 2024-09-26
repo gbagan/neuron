@@ -15,8 +15,8 @@ type AllNeuronsComponent = Component<{
 
 const AllNeuronsDialog: AllNeuronsComponent = props => (
   <>
-    <div class="dialogtitle">Neurones de sortie</div>
-    <div class="dialogbody flex flex-col ">
+    <div class="dialog-title">Neurones de sortie</div>
+    <div class="dialog-body flex flex-col ">
       <div class="grid grid-cols-2 gap-8 portrait:flex portrait:flex-col">
         <Index each={[0, 1, 2, 3]}>
           {i => (
@@ -47,9 +47,9 @@ const AllNeuronsDialog: AllNeuronsComponent = props => (
         </Show>
       </div>
     </div>
-    <div class="p-4 text-right">
+    <div class="dialog-buttons">
       <button class="btn" onClick={props.learn}>Apprendre</button>
-      <button class="btn ml-4" onClick={props.closeDialog}>OK</button>
+      <button class="btn" onClick={props.closeDialog}>OK</button>
     </div>
   </>
 );

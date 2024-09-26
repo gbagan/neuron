@@ -15,8 +15,8 @@ type EditorComponent = Component<{
 
 const Editor: EditorComponent = props => (
   <>
-    <div class="dialogtitle">Modifier le motif</div>
-    <div class="dialogbody flex flex-row portrait:flex-col items-center gap-8">
+    <div class="dialog-title">Modifier le motif</div>
+    <div class="dialog-body flex flex-row portrait:flex-col items-center gap-8">
       <div class="m-2 overflow-hidden relative bg-white border-4 w-64 h-96">
           <Index each={props.patterns[props.currentPattern].pattern}>
             {(b, i) => (
@@ -57,9 +57,9 @@ const Editor: EditorComponent = props => (
         </Index>
       </div>
     </div>
-    <div class="p-4 text-right">
+    <div class="dialog-buttons">
       <button class="btn" onClick={props.resetPatterns}>Réinitialiser</button>
-      <button class="btn ml-4" onClick={props.closeDialog}>OK</button>
+      <button class="btn" onClick={props.closeDialog}>OK</button>
     </div>
   </>
 )
