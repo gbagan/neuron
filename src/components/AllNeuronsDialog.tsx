@@ -9,14 +9,15 @@ type AllNeuronsComponent = Component<{
   stateIdx: number,
   learn: () => void,
   changeCurrentState: (i: number) => void,
+  runSimulation: () => void, 
   closeDialog: () => void,
 }>
 
 const AllNeuronsDialog: AllNeuronsComponent = props => (
-  <div class="bg-black text-white rounded block border-2">
+  <>
     <div class="dialogtitle">Neurones de sortie</div>
-    <div class="dialogbody flex flex-col">
-      <div class="grid grid-cols-2 gap-8">
+    <div class="dialogbody flex flex-col ">
+      <div class="grid grid-cols-2 gap-8 portrait:flex portrait:flex-col">
         <Index each={[0, 1, 2, 3]}>
           {i => (
             <Ruler
@@ -33,9 +34,9 @@ const AllNeuronsDialog: AllNeuronsComponent = props => (
         Nombre d'itérations: {props.state.iter}
         <Show when={props.nbStates > 1}>
           <div>
-            <button class="btn">Lancer</button>
+            <button class="btn" onClick={props.runSimulation}>Lancer</button>
             <input
-              class="inputrange"
+              class="inputrange range-lg"
               type="range"
               min="0"
               max={props.nbStates - 1}
@@ -50,7 +51,7 @@ const AllNeuronsDialog: AllNeuronsComponent = props => (
       <button class="btn" onClick={props.learn}>Apprendre</button>
       <button class="btn ml-4" onClick={props.closeDialog}>OK</button>
     </div>
-  </div>
+  </>
 );
 
 export default AllNeuronsDialog;

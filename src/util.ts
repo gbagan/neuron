@@ -16,3 +16,5 @@ export function scalarProduct(xs: number[], ys: number[]) {
 export function zipWith<A, B, C>(xs: A[], ys: B[], fn: (x: A, y: B) => C): C[] {
   return xs.map((x, i) => fn(x, ys[i]))
 }
+
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

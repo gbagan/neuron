@@ -8,15 +8,16 @@ type EditorComponent = Component<{
   currentPattern: number,
   setCurrentPattern: (i: number) => void,
   togglePattern: (i: number) => void,
+  resetPatterns: () => void,
   changePixel: (i: number) => void,
   closeDialog: () => void,
 }>;
 
 const Editor: EditorComponent = props => (
-  <div class="bg-black text-white rounded block border-2">
+  <>
     <div class="dialogtitle">Modifier le motif</div>
     <div class="dialogbody flex flex-row items-center gap-8">
-      <div class="m-2 overflow-hidden relative border-4 w-64 h-96">
+      <div class="m-2 overflow-hidden relative bg-white border-4 w-64 h-96">
           <Index each={props.patterns[props.currentPattern].pattern}>
             {(b, i) => (
               <div
@@ -36,7 +37,7 @@ const Editor: EditorComponent = props => (
       <div class="grid grid-cols-6 gap-1">
         <Index each={props.patterns}>
           {(pattern, i) =>
-            <div class="flex flex-col items-center">
+            <div class="flex flex-row items-center">
               <label class="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -57,10 +58,10 @@ const Editor: EditorComponent = props => (
       </div>
     </div>
     <div class="p-4 text-right">
-      <button class="btn">Réinitialiser</button>
+      <button class="btn" onClick={props.resetPatterns}>Réinitialiser</button>
       <button class="btn ml-4" onClick={props.closeDialog}>OK</button>
     </div>
-  </div>
+  </>
 )
 
 export default Editor;

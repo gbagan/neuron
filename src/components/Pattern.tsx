@@ -11,7 +11,7 @@ type PatternComponent = Component<{
 
 const PatternView: PatternComponent = props => (
   <div
-    class="overflow-hidden relative border-4 border-slate-400 m-2 w-64 h-96"
+    class="overflow-hidden relative border-4 border-slate-400 m-2 w-[30vmin] h-[45vmin] cursor-pointer"
     onClick={props.onClick}
   >
     <Index each={props.pattern.pattern}>

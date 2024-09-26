@@ -1,7 +1,9 @@
 import sum from "lodash.sum"
-import { emptyPattern, pattern01, pattern02, pattern03, pattern04, pattern31,
-        pattern32, pattern33, pattern34, pattern61, pattern62, pattern63,
-        pattern64, pattern91, pattern92, pattern93, pattern94 } from "./patterns"
+import {
+  emptyPattern, pattern01, pattern02, pattern03, pattern04, pattern31,
+  pattern32, pattern33, pattern34, pattern61, pattern62, pattern63,
+  pattern64, pattern91, pattern92, pattern93, pattern94
+} from "./patterns"
 import min from "lodash.min"
 import max from "lodash.max"
 import range from "lodash.range"
@@ -27,9 +29,15 @@ export type State = {
   iter: number,
 }
 
+export type NDialog = {
+  type: "neuron",
+  layer: number,
+  idx: number,
+}
+
 type Dialog = {
   type: "none" | "edit" | "neurons"
-}
+} | NDialog
 
 
 export type Model = {
@@ -44,43 +52,46 @@ export type Model = {
 }
 
 export const mask = [
-  [ 1, 1, 1, 0, 0, 0 ],
-  [ 1, 1, 0, 0, 0, 1 ],
-  [ 0, 0, 1, 1, 1, 0 ],
-  [ 0, 1, 0, 1, 0, 1 ],
-  [ 1, 0, 0, 0, 1, 1 ],
-  [ 0, 0, 0, 1, 1, 1 ],
-  ].map(row => row.map(i => i === 1))
+  [1, 1, 1, 0, 0, 0],
+  [1, 1, 0, 0, 0, 1],
+  [0, 0, 1, 1, 1, 0],
+  [0, 1, 0, 1, 0, 1],
+  [1, 0, 0, 0, 1, 1],
+  [0, 0, 0, 1, 1, 1],
+].map(row => row.map(i => i === 1))
 
-const initPatterns: () => Pattern[] = () => [
-  { symbol: 0, pattern: pattern01(), selected: true },
-  { symbol: 0, pattern: pattern02(), selected: true },
-  { symbol: 0, pattern: pattern03(), selected: true },
-  { symbol: 0, pattern: pattern04(), selected: true },
-  { symbol: 0, pattern: emptyPattern(), selected: false },
-  { symbol: 0, pattern: emptyPattern(), selected: false },
+export const patternFns: (() => Pattern)[] = [
+  () => ({ symbol: 0, pattern: pattern01(), selected: true }),
+  () => ({ symbol: 0, pattern: pattern02(), selected: true }),
+  () => ({ symbol: 0, pattern: pattern03(), selected: true }),
+  () => ({ symbol: 0, pattern: pattern04(), selected: true }),
+  () => ({ symbol: 0, pattern: emptyPattern(), selected: false }),
+  () => ({ symbol: 0, pattern: emptyPattern(), selected: false }),
 
-  { symbol: 1, pattern: pattern31(), selected: true },
-  { symbol: 1, pattern: pattern32(), selected: true },
-  { symbol: 1, pattern: pattern33(), selected: true },
-  { symbol: 1, pattern: pattern34(), selected: true },
-  { symbol: 1, pattern: emptyPattern(), selected: false },
-  { symbol: 1, pattern: emptyPattern(), selected: false },
+  () => ({ symbol: 1, pattern: pattern31(), selected: true }),
+  () => ({ symbol: 1, pattern: pattern32(), selected: true }),
+  () => ({ symbol: 1, pattern: pattern33(), selected: true }),
+  () => ({ symbol: 1, pattern: pattern34(), selected: true }),
+  () => ({ symbol: 1, pattern: emptyPattern(), selected: false }),
+  () => ({ symbol: 1, pattern: emptyPattern(), selected: false }),
 
-  { symbol: 2, pattern: pattern61(), selected: true },
-  { symbol: 2, pattern: pattern62(), selected: true },
-  { symbol: 2, pattern: pattern63(), selected: true },
-  { symbol: 2, pattern: pattern64(), selected: true },
-  { symbol: 2, pattern: emptyPattern(), selected: false },
-  { symbol: 2, pattern: emptyPattern(), selected: false },
+  () => ({ symbol: 2, pattern: pattern61(), selected: true }),
+  () => ({ symbol: 2, pattern: pattern62(), selected: true }),
+  () => ({ symbol: 2, pattern: pattern63(), selected: true }),
+  () => ({ symbol: 2, pattern: pattern64(), selected: true }),
+  () => ({ symbol: 2, pattern: emptyPattern(), selected: false }),
+  () => ({ symbol: 2, pattern: emptyPattern(), selected: false }),
 
-  { symbol: 3, pattern: pattern91(), selected: true },
-  { symbol: 3, pattern: pattern92(), selected: true },
-  { symbol: 3, pattern: pattern93(), selected: true },
-  { symbol: 3, pattern: pattern94(), selected: true },
-  { symbol: 3, pattern: emptyPattern(), selected: false },
-  { symbol: 3, pattern: emptyPattern(), selected: false },
+  () => ({ symbol: 3, pattern: pattern91(), selected: true }),
+  () => ({ symbol: 3, pattern: pattern92(), selected: true }),
+  () => ({ symbol: 3, pattern: pattern93(), selected: true }),
+  () => ({ symbol: 3, pattern: pattern94(), selected: true }),
+  () => ({ symbol: 3, pattern: emptyPattern(), selected: false }),
+  () => ({ symbol: 3, pattern: emptyPattern(), selected: false }),
 ]
+
+
+export const initPatterns = () => patternFns.map(fn => fn());
 
 // compte le nombre de pixels que capte le neurone d'entrée i sur un pattern donné
 export const countPixels = (i: number, pattern: boolean[]) =>
@@ -93,9 +104,9 @@ export const countPixels = (i: number, pattern: boolean[]) =>
 // todo
 // firstAvailableHeight([0, 1, 2, 4, 6, 7]) === 3
 export function firstAvailableHeight(xs: number[]) {
-  for (let i = 0;; i++) {
+  for (let i = 0; ; i++) {
     if (!xs.includes(i)) {
-      return i; 
+      return i;
     }
   }
 }
@@ -113,7 +124,7 @@ type RulerPositions = {
 }
 
 export function rulerPositions(patterns: Pattern[], st: State, layer: number, j: number): RulerPositions {
-  const values = st.output.map(({hidden, final}) => layer == 1 ? hidden [j] : final[j]);
+  const values = st.output.map(({ hidden, final }) => layer == 1 ? hidden[j] : final[j]);
   const minX = min(values) ?? 0;
   const maxX = max(values) ?? 0;
   const values2 = values.map(v => (v - minX) / (maxX - minX)); // todo
@@ -121,30 +132,30 @@ export function rulerPositions(patterns: Pattern[], st: State, layer: number, j:
   const n = patterns.length;
   for (let k = 0; k < n; k++) {
     if (patterns[k].selected) {
-      symbolsTmp.push({symbol: patterns[k].symbol, value: values2[k]})
+      symbolsTmp.push({ symbol: patterns[k].symbol, value: values2[k] })
     }
   }
   symbolsTmp.sort((a, b) => a.value - b.value);
 
   const symbols: Symbol[] = [];
-  for (const {symbol, value} of symbolsTmp) {
+  for (const { symbol, value } of symbolsTmp) {
     const previousHeights = symbols.filter(s => value - s.x <= 0.049).map(s => s.y);
     const y = firstAvailableHeight(previousHeights);
-    symbols.push({symbol, x: value, y});
+    symbols.push({ symbol, x: value, y });
   }
 
   return {
     zero: -minX / (maxX - minX), // todo
     symbols,
-    graduation: range(Math.floor(minX), Math.ceil(maxX)+1)
-                  .map(k => ({value: k, x: (k - minX) / (maxX - minX)}))
+    graduation: range(Math.floor(minX), Math.ceil(maxX) + 1)
+      .map(k => ({ value: k, x: (k - minX) / (maxX - minX) }))
   }
 }
 
 
 // calcule la valeur des neuronnes d'entrée à partir d'une liste de patterns
 export function updateInput(patterns: Pattern[]): number[][] {
-  return patterns.map(({pattern}) =>
+  return patterns.map(({ pattern }) =>
     range(0, 6).map(i => countPixels(i, pattern))
   )
 }
@@ -154,7 +165,7 @@ export function updateOutput(inputs: number[][], st: State): Output {
     const hidden = zipWith(st.hiddenThresholds, st.hiddenWeights, (t, hw) =>
       Math.max(0, scalarProduct(input, hw) - t)
     );
-    const final = zipWith(st.finalThresholds, st.finalWeights,(t, fw) =>
+    const final = zipWith(st.finalThresholds, st.finalWeights, (t, fw) =>
       scalarProduct(hidden, fw) - t
     );
     return { final, hidden };
@@ -162,21 +173,21 @@ export function updateOutput(inputs: number[][], st: State): Output {
 }
 
 const initState: () => State = () => ({
-  hiddenThresholds: [ 8.0, 7.0, 18.0, 6.0, 16.0, 5.0 ],
+  hiddenThresholds: [8.0, 7.0, 18.0, 6.0, 16.0, 5.0],
   hiddenWeights: [
-    [ -1.0, 1.0, 1.0, 0.0, 0.0, 0.0 ],
-    [ 1.0, 1.0, 0.0, 0.0, 0.0, -1.0 ],
-    [ 0.0, 0.0, 1.0, 1.0, 1.0, 0.0 ],
-    [ 0.0, 1.0, 0.0, -1.0, 0.0, 1.0 ],
-    [ 1.0, 0.0, 0.0, 0.0, 1.0, 1.0 ],
-    [ 0.0, 0.0, 0.0, 1.0, -1.0, 1.0 ],
+    [-1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
+    [1.0, 1.0, 0.0, 0.0, 0.0, -1.0],
+    [0.0, 0.0, 1.0, 1.0, 1.0, 0.0],
+    [0.0, 1.0, 0.0, -1.0, 0.0, 1.0],
+    [1.0, 0.0, 0.0, 0.0, 1.0, 1.0],
+    [0.0, 0.0, 0.0, 1.0, -1.0, 1.0],
   ],
-  finalThresholds: [ 7.0, 5.0, 6.0, 5.0 ],
+  finalThresholds: [7.0, 5.0, 6.0, 5.0],
   finalWeights: [
-    [ -1.0, -1.0, 1.0, -1.0, 1.0, 1.0 ],
-    [ 1.0, 1.0, -1.0, 1.0, -1.0, 0.0 ],
-    [ -1.0, 1.0, -1.0, 1.0, 1.0, -1.0 ],
-    [ 1.0, 1.0, 1.0, -1.0, -1.0, 0.0 ],
+    [-1.0, -1.0, 1.0, -1.0, 1.0, 1.0],
+    [1.0, 1.0, -1.0, 1.0, -1.0, 0.0],
+    [-1.0, 1.0, -1.0, 1.0, 1.0, -1.0],
+    [1.0, 1.0, 1.0, -1.0, -1.0, 0.0],
   ],
   output: [],
   iter: 0,
@@ -185,10 +196,10 @@ const initState: () => State = () => ({
 export const initModel: () => Model = () => ({
   patterns: initPatterns(),
   inputs: [],
-  states: [ initState() ],
+  states: [initState()],
   currentState: 0,
   currentPattern: 0,
   selectedInput: null,
   editMode: false,
-  dialog: {type: "none"},
+  dialog: { type: "none" },
 });

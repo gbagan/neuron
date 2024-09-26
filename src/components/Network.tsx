@@ -1,7 +1,7 @@
 import { Component, Index } from "solid-js";
 import { mask } from "../model";
-import range from "lodash.range";
 import { patternColors } from "../constants";
+import Neuron from "./Neuron";
 
 type LineComponent = Component<{
   layer1: number,
@@ -24,6 +24,7 @@ const Line: LineComponent = props => (
 type NetworkComponent = Component<{
     final: number[],
     selectInput: (i: number | null) => void,
+    openNeuronDialog: (layer: number, idx: number) => void,
 }>
 
 const Network: NetworkComponent = props => (
@@ -35,14 +36,14 @@ const Network: NetworkComponent = props => (
         )}
       </>
     )}
-    {range(0, 6).map(i =>
+    {[0, 1, 2, 3, 4, 5].map(i =>
       <>
-        {range(0, 4).map(j =>
+        {[0, 1, 2, 3].map(j =>
           <Line layer1={1} layer2={2} row1={i} row2={j} />
         )}
       </>
     )}
-    {range(0, 6).map(i =>
+    {[0, 1, 2, 3, 4, 5].map(i =>
       <line
         y1={10 + 15 * i}
         y2={10 + 15 * i}
@@ -52,7 +53,7 @@ const Network: NetworkComponent = props => (
         stroke="white"
       />
     )}
-    {range(0, 4).map(i =>
+    {[0, 1, 2, 3].map(i =>
       <line
         y1={20 + 20 * i}
         y2={20 + 20 * i}
@@ -62,42 +63,26 @@ const Network: NetworkComponent = props => (
         stroke="white"
       />
     )}
-    {range(0, 6).map(i =>
-      <g
-        style={{transform: `translate(10%, ${10+15*i}%)`}}
-      >
+    {[0, 1, 2, 3, 4, 5].map(i =>
+      <g style={{transform: `translate(10%, ${10+15*i}%)`}}>
         <circle
           r="5"
           fill="white"
           onPointerEnter={() => props.selectInput(i)}
           onPointerLeave={() => props.selectInput(null)}
         />
-        <use
-          href={`#neuron-${i}`}
-          x="-3.0"
-          y="-3.0"
-          width="6"
-          height="6"
-          class="pointer-events-none"
-        />
+        <Neuron idx={i}/>
       </g>
     )}
-    {range(0, 6).map(i =>
-      <g
-        style={{transform: `translate(40%, ${10+15*i}%)`}}
-      >
+    {[0, 1, 2, 3, 4, 5].map(i =>
+      <g style={{transform: `translate(40%, ${10+15*i}%)`}}>
         <circle
           r="5"
           fill="white"
+          class="cursor-pointer"
+          onClick={() => props.openNeuronDialog(1, i)}
         />
-        <use
-          href={`#neuron-${6+i}`}
-          x="-3.0"
-          y="-3.0"
-          width="6"
-          height="6"
-          class="pointer-events-none"
-        />
+        <Neuron idx={i+6}/>
       </g>
     )}
     <Index each={props.final}>
@@ -106,6 +91,8 @@ const Network: NetworkComponent = props => (
           <circle
             r="5"
             fill={patternColors[i]}
+            class="cursor-pointer"
+            onClick={() => props.openNeuronDialog(2, i)}
           />
           <text
             x="20"
@@ -119,56 +106,5 @@ const Network: NetworkComponent = props => (
     </Index>
   </svg>
 )
-  /*
-      [ H.g [] $ concat $ mask # mapWithIndex \i -> mapWithIndex \j v ->
-          H.when v \_ -> drawLine 0 j 1 i
-      , H.g [] $ do
-          i <- 0 .. 5
-          j <- 0 .. 3
-          pure $ drawLine 1 i 2 j
-      , H.g [] $ drawInputLine <$> 0 .. 5
-      , H.g [] $ drawOutputLine <$> 0 .. 3
-      , H.g [] $ 0 .. 5 <#> \i ->
-          H.g [ H.style "transform" $ translate (pc 0.1) (pc $ 0.1 + 0.15 * Int.toNumber i) ]
-            [ H.circle
-                [ P.r 5.0
-                , E.onPointerEnter \_ -> SelectInput (Just i)
-                , E.onPointerLeave \_ -> SelectInput Nothing
-                , P.fill "white"
-                ]
-            , drawNeuron i
-            -- ,   H.text_ (show value) [P.x (-2.5), P.y 2.0, H.attr "font-size" "0.3rem", H.attr "pointer-events" "none"] 
-            ]
-      , H.g [] $ (0 .. 5) <#> \i ->
-          H.g [ H.style "transform" $ translate (pc 0.4) (pc $ 0.1 + 0.15 * Int.toNumber i) ]
-            [ H.circle
-                [ P.r 5.0
-                , P.fill "white"
-                , E.onClick \_ -> OpenDialog (NeuronDialog 1 i)
-                ]
-            , drawNeuron (6 + i)
-            ]
-      , H.g [] $ final # mapWithIndex \i value ->
-          H.g [ H.style "transform" $ translate (pc 0.7) (pc $ 0.2 + 0.2 * Int.toNumber i) ]
-            [ H.circle
-                [ P.r 5.0
-                , P.fill $ patternColor i
-                , E.onClick \_ -> OpenDialog (NeuronDialog 2 i)
-                ]
-            , if value > 0.0 then
-                H.text_ "✓"
-                  [ P.x 20.0
-                  , H.attr "font-size" "0.4rem"
-                  , P.stroke "green"
-                  ]
-              else
-                H.text_ "⨯"
-                  [ P.x 20.0
-                  , H.attr "font-size" "0.4rem"
-                  , P.stroke "red"
-                  ]
-            ]
-      ]
-            */
 
 export default Network;
