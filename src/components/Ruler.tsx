@@ -17,9 +17,9 @@ const Ruler: RulerComponent = props => {
     <div
       class="border"
       classList={{
-        "w-[40vw]": props.small,
+        "w-[40rem]": props.small,
         "portrait:w-[80vw]": props.small,
-        "w-[75vw]": !props.small
+        "w-[75rem]": !props.small
       }}
     >
       <svg viewBox="-10 0 120 30">
