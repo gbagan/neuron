@@ -11,7 +11,7 @@ import { delay } from './util';
 
 const App: Component = () => {
   const [model, setModel] = createStore(initModel());
-  let dialog: HTMLDialogElement;
+  let dialog!: HTMLDialogElement;
 
   const output = () => model.states[model.currentState].output;
   const final = () => output()[model.currentPattern].final;
@@ -156,7 +156,7 @@ const App: Component = () => {
           <Network final={final()} {...networkActions} />
         </div>
       </div>
-      <dialog class="dialog" ref={el => (dialog = el)}>
+      <dialog class="dialog" ref={dialog}>
         <Switch>
           <Match when={model.dialog.type === "edit"}>
             <Editor
