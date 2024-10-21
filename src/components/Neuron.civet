@@ -1,6 +1,6 @@
 import { Component } from "solid-js";
 
-const Neuron: Component<{idx: number}> = props =>
+Neuron: Component<{idx: number}> := (props) =>
   <use
     href={`#neuron-${props.idx}`}
     x="-3.0"
@@ -10,4 +10,4 @@ const Neuron: Component<{idx: number}> = props =>
     class="pointer-events-none select-none"
   />
 
-export default Neuron;
+export default Neuron

@@ -1,0 +1,16 @@
+export function replicate<A>(n: number, val: A): A[]
+  a := new Array n
+  a.fill val
+  a
+
+export scalarProduct := (xs: number[], ys: number[]) =>
+  res .= 0;
+  n := xs.length;
+  for i .= 0; i < n; i++
+    res += xs[i] * ys[i]
+  res
+
+export function zipWith<A, B, C>(xs: A[], ys: B[], fn: (x: A, y: B) => C): C[]
+  xs.map (x, i) => fn(x, ys[i])
+
+export const delay = (ms: number) => new Promise (resolve) => setTimeout(resolve, ms)

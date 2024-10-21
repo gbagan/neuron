@@ -1,0 +1,162 @@
+import { Component, Match, Switch, batch } from 'solid-js'
+import { createStore, produce } from "solid-js/store"
+import { initModel, initPatterns, NDialog, updateInput, updateOutput } from './model.civet'
+import { runLearning } from './learn.civet'
+import PatternView from './components/Pattern.civet'
+import Network from './components/Network.civet'
+import Editor from './components/Editor.civet'
+import AllNeuronsDialog from './components/AllNeuronsDialog.civet'
+import NeuronDialog from './components/NeuronDialog.civet'
+import { delay } from './util.civet'
+
+App: Component := =>
+  [model, setModel] := createStore(initModel());
+  let dialog!: HTMLDialogElement;
+
+  output := => model.states[model.currentState].output
+  final := () => output()[model.currentPattern].final
+
+  simulate := =>
+    setModel produce (model) =>
+      model.inputs = updateInput model.patterns
+      for st of model.states
+        st.output = updateOutput model.inputs, st
+      return
+
+  simulate()
+
+  keepOneState := =>
+    setModel "states", [model.states[model.currentState]]
+    setModel "states", 0, "iter", 0
+    setModel "currentState", 0
+
+  openEditorDialog := =>
+    setModel "dialog", {type: "edit"}
+    dialog.showModal()
+
+  openAllNeuronsDialog := =>
+    setModel "dialog", {type: "neurons"}
+    dialog.showModal()
+
+  openNeuronDialog := (layer: number, idx: number) =>
+    setModel "dialog", {type: "neuron", layer, idx}
+    dialog.showModal()
+
+  closeDialog := =>
+    setModel "dialog", {type :"none"}
+    dialog.close()
+
+  selectInput := (i: number | null) => setModel "selectedInput", i
+  togglePattern := (i: number) => setModel "patterns", i, "selected", !&
+  setCurrentPattern := (i: number) => setModel "currentPattern", i
+  previousPattern := => setModel "currentPattern", (& + 23) % 24
+  nextPattern := => setModel("currentPattern", (& + 1) % 24)
+
+  changePixel := (i: number) =>
+    batch =>
+      setModel "patterns", model.currentPattern, "pattern", i, !&
+      simulate()
+
+  resetPatterns := =>
+    batch =>
+      setModel "patterns", initPatterns()
+      simulate()
+
+  changeWeight := (layer: number, i: number, j: number, val: number) =>
+    batch =>
+      setModel "states", model.currentState, layer === 1 ? "hiddenWeights" : "finalWeights", i, j, val
+      keepOneState()
+      simulate()
+
+  changeThreshold := (layer: number, i: number, val: number) =>
+    batch =>
+      setModel "states", model.currentState, layer === 1 ? "hiddenThresholds" : "finalThresholds", i, val
+      keepOneState()
+      simulate()
+
+  learn := => setModel "states", runLearning(model)
+
+  changeCurrentState := (i: number) => setModel "currentState", i
+
+  reset := () =>
+    batch =>
+      setModel(initModel())
+      simulate()
+
+  runSimulation := async =>
+    n := model.states.length
+    for i .= 0; i < n; i++
+      setModel "currentState", i
+      await delay(1500)
+    return
+
+  editorActions := {
+    setCurrentPattern,
+    changePixel
+    closeDialog
+    togglePattern
+    resetPatterns
+  }
+
+  networkActions := {
+    selectInput
+    openNeuronDialog
+  }
+
+  neuronDialogActions := {
+    learn
+    changeCurrentState
+    changeThreshold
+    changeWeight
+    closeDialog
+  }
+
+  const allNeuronsActions = {
+    learn
+    changeCurrentState
+    runSimulation
+    closeDialog
+  }
+
+  <div class="w-full min-h-screen bg-black flex flew-row items-center justify-around portrait:flex-col">
+    <div class="flex flex-col items-center portrait:flex-row">
+      <PatternView
+        selectedCaptor={model.selectedInput}
+        pattern={model.patterns[model.currentPattern]}
+        onClick={openEditorDialog}
+      />
+      <div class="grid grid-cols-2 gap-1">
+        <button class="btn" onClick={previousPattern}>Précédent
+        <button class="btn" onClick={nextPattern}>Suivant
+        <button class="btn" onClick={openAllNeuronsDialog}>Réglettes
+        <button class="btn" onClick={reset}>Réinitialiser
+    <div class="w-2/3 portrait:w-full">
+      <Network final={final()} {...networkActions} />
+  <dialog class="dialog" ref={dialog}>
+    <Switch>
+      <Match when={model.dialog.type === "edit"}>
+        <Editor
+          patterns={model.patterns}
+          currentPattern={model.currentPattern}
+          {...editorActions}
+        />
+      <Match when={model.dialog.type === "neurons"}>
+        <AllNeuronsDialog
+          state=model.states[model.currentState]
+          patterns=model.patterns
+          nbStates=model.states.length
+          stateIdx=model.currentState
+          ...allNeuronsActions
+        />
+      <Match when={model.dialog.type === "neuron"}>
+        <NeuronDialog
+          layer=(model.dialog as NDialog).layer
+          idx=(model.dialog as NDialog).idx
+          state=model.states[model.currentState]
+          patterns=model.patterns
+          nbStates=model.states.length
+          stateIdx=model.currentState
+          ...neuronDialogActions
+        />
+
+export default App

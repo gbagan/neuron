@@ -1,0 +1,56 @@
+import { Component, Index } from "solid-js"
+import { Pattern } from "../model.civet"
+import MiniPattern from "./MiniPattern.civet"
+import { toggleClass } from "../constants.civet"
+
+type EditorComponent = Component<{
+  patterns: Pattern[]
+  currentPattern: number
+  setCurrentPattern: (i: number) =>
+  togglePattern: (i: number) =>
+  resetPatterns: =>
+  changePixel: (i: number) =>
+  closeDialog: =>
+}>
+
+Editor: EditorComponent := (props) =>
+  <div class="dialog-title">Modifier le motif
+  <div class="dialog-body flex flex-row portrait:flex-col items-center gap-8">
+    <div class="m-2 overflow-hidden relative bg-white border-4 w-64 h-96">
+      <Index each={props.patterns[props.currentPattern].pattern}>
+        {(b, i) =>
+          <div
+            class="absolute"
+            style={
+              background: b() ? "black" : "white"
+              width: "16.66666666%"
+              height: "11.1111111111%"
+              left: `${100 * (i % 6) / 6}%`
+              top: `${100 * (i / 6 | 0) / 9}%`
+            }
+            onClick=[props.changePixel, i]
+          />
+        }
+    <div class="grid grid-cols-6 gap-1">
+      <Index each={props.patterns}>
+        {(pattern, i) =>
+          <div class="flex flex-row items-center">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={pattern().selected}
+                class="sr-only peer"
+                onChange={[props.togglePattern, i]}
+              />
+              <div class={`rotate-90 ${toggleClass}`} />
+            <MiniPattern
+              pattern={pattern()}
+              isCurrent={i === props.currentPattern}
+              onClick={[props.setCurrentPattern, i]}
+            />
+        }
+  <div class="dialog-buttons">
+    <button class="btn" onClick={props.resetPatterns}>Réinitialiser
+    <button class="btn" onClick={props.closeDialog}>OK
+
+export default Editor

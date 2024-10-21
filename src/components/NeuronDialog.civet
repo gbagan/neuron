@@ -1,0 +1,62 @@
+import { Component, createSignal, Index, Show } from "solid-js"
+import Ruler from "./Ruler.civet"
+import { Pattern, State } from "../model.civet"
+import Calculus from "./Calculus.civet"
+
+const alphabet = "ABCDEF"
+const colors = ["vert", "bleu", "rose", "jaune"]
+
+const title = (layer: number, i: number) => "Neurone " + (layer === 1 ? alphabet[i] : colors[i])
+
+type NeuronComponent = Component<{
+  layer: number
+  idx: number
+  state: State
+  patterns: Pattern[]
+  nbStates: number
+  stateIdx: number
+  learn: () => void
+  changeCurrentState: (i: number) => void
+  changeWeight: (layer: number, i: number, j: number, val: number) => void
+  changeThreshold: (layer: number, i: number, val: number) => void
+  closeDialog: () => void
+}>
+
+NeuronDialog: NeuronComponent := (props) =>
+  [editMode, setEditMode] := createSignal false
+  
+  edit := => setEditMode !&
+
+  <div .dialog-title>{title(props.layer, props.idx)}
+  <div .dialog-body.flex.flex-col>
+    <Calculus
+      layer={props.layer}
+      weights={props.layer === 1 ? props.state.hiddenWeights[props.idx] : props.state.finalWeights[props.idx]}
+      threshold={props.layer === 1 ? props.state.hiddenThresholds[props.idx] : props.state.finalThresholds[props.idx]}
+      editMode={editMode()}
+      changeWeight={(k, val) => props.changeWeight(props.layer, props.idx, k, val)}
+      changeThreshold={(val) => props.changeThreshold(props.layer, props.idx, val)}
+    />
+    <Ruler
+      state=props.state
+      patterns=props.patterns
+      layer=props.layer
+      idx=props.idx
+      small=false
+    />
+    <div .largetext>Nombre d'itérations: {props.state.iter}
+    <Show when={props.nbStates > 1}>
+      <input
+        class="inputrange range-lg"
+        type="range"
+        min="0"
+        max={props.nbStates - 1}
+        value={props.stateIdx}
+        onChange={(e) => props.changeCurrentState(e.currentTarget.valueAsNumber)}
+      />
+  <div class="dialog-buttons">
+    <button .btn onClick={edit}>Editer
+    <button .btn onClick={props.learn}>Apprendre
+    <button .btn onClick={props.closeDialog}>OK
+
+export default NeuronDialog

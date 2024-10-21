@@ -1,0 +1,60 @@
+import { MASK, Model, Pattern, State, updateOutput } from "./model.civet";
+
+STEP := 0.0001 // le pas dans le flot gradient
+COEFF := 0.7    // coef dans la fonction de coût d'erreur qui est une fonction exponentielle
+NB_ITERS := 60_000
+ITER_LIST := [0, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000]
+
+dercost := (x: number, b: boolean) => if b then -COEFF * Math.exp(-COEFF * x) else COEFF * Math.exp(COEFF * x)
+
+export learnOneStep := (st: State, patterns: Pattern[], inputs: number[][], mask: boolean[][]): State =>
+  { iter, hiddenThresholds, hiddenWeights, finalThresholds, finalWeights, output } := st
+  finalThresholds2 := [...finalThresholds]
+  finalWeights2 := finalWeights.map [...&]
+  hiddenThresholds2 := [...hiddenThresholds]
+  hiddenWeights2 := hiddenWeights.map [...&]
+
+  for n .= 0; n < 24; n++
+    { selected, symbol } := patterns[n]
+    if selected
+      { final, hidden } := output[n]
+      input := inputs[n]
+
+      for i .= 0; i < 4; i++
+        finalThresholds2[i] += 10 * STEP * dercost(final[i], i === symbol)
+
+      for i .= 0; i < 4; i++
+        for j .= 0; j < 6; j++
+          finalWeights2[i][j] -= STEP * dercost(final[i], symbol === i) * hidden[j]
+
+      for k .= 0; k < 6; k++
+        if hidden[k] > 0
+          for j .= 0; j < 4; j++
+            hiddenThresholds2[k] += STEP * dercost(final[j], symbol === j) * hiddenWeights[j][k]
+
+      for k .= 0; k < 6; k++
+        if hidden[k] > 0
+            for i .= 0; i < 6; i++
+              if mask[k][i]
+                for j .= 0; j < 4; j++
+                  hiddenWeights2[k][i] -= STEP * dercost(final[j], symbol === j) * finalWeights[j][k] * input[i]
+  { iter: iter + 1,
+    finalThresholds: finalThresholds2,
+    finalWeights: finalWeights2,
+    hiddenThresholds: hiddenThresholds2,
+    hiddenWeights: hiddenWeights2,
+    output: [],
+  }
+
+export function runLearning(model: Model): State[]
+  res := []
+  st .= model.states[0]
+  inputs := model.inputs.map [...&]
+  patterns := model.patterns.map {...&}
+  for (let i = 0; i < NB_ITERS; i++)
+    if ITER_LIST.includes i
+      res.push st
+    st = learnOneStep st, patterns, inputs, MASK
+    st.output = updateOutput inputs, st
+  res.push st
+  res

@@ -1,16 +1,16 @@
-import { Component, Index } from "solid-js";
-import { mask } from "../model";
-import { patternColors } from "../constants";
-import Neuron from "./Neuron";
+import { Component, Index } from "solid-js"
+import { MASK } from "../model.civet"
+import { patternColors } from "../constants.civet"
+import Neuron from "./Neuron.civet"
 
 type LineComponent = Component<{
-  layer1: number,
-  layer2: number,
-  row1: number,
-  row2: number,
+  layer1: number
+  layer2: number
+  row1: number
+  row2: number
 }>
 
-const Line: LineComponent = props => (
+Line: LineComponent := (props) =>
   <line
     y1={props.layer1 <= 1 ? 10 + 15 * props.row1 : 20 + 20 * props.row1}
     y2={props.layer2 <= 1 ? 10 + 15 * props.row2 : 20 + 20 * props.row2}
@@ -19,31 +19,30 @@ const Line: LineComponent = props => (
     stroke-width="0.5"
     stroke="white"
   />
-)
 
 type NetworkComponent = Component<{
-  final: number[],
-  selectInput: (i: number | null) => void,
-  openNeuronDialog: (layer: number, idx: number) => void,
+  final: number[]
+  selectInput: (i: number | null) =>
+  openNeuronDialog: (layer: number, idx: number) =>
 }>
 
-const Network: NetworkComponent = props => (
+const Network: NetworkComponent = (props) =>
   <svg viewBox="0 0 135 100">
-    {mask.map((row, i) =>
+    {MASK.map (row, i) =>
       <>
-        {row.map((v, j) =>
-          v && <Line layer1={0} layer2={1} row1={j} row2={i} />
-        )}
+        {row.map (v, j) =>
+          v && <Line layer1=0 layer2=1 row1=j row2=i />
+        }
       </>
-    )}
-    {[0, 1, 2, 3, 4, 5].map(i =>
+    }
+    {[0, 1, 2, 3, 4, 5].map (i) =>
       <>
-        {[0, 1, 2, 3].map(j =>
-          <Line layer1={1} layer2={2} row1={i} row2={j} />
-        )}
+        {[0, 1, 2, 3].map (j) =>
+          <Line layer1=1 layer2=2 row1=i row2=j />
+        }
       </>
-    )}
-    {[0, 1, 2, 3, 4, 5].map(i =>
+    }
+    {[0, 1, 2, 3, 4, 5].map (i) =>
       <line
         y1={10 + 15 * i}
         y2={10 + 15 * i}
@@ -52,8 +51,8 @@ const Network: NetworkComponent = props => (
         stroke-width="0.5"
         stroke="white"
       />
-    )}
-    {[0, 1, 2, 3].map(i =>
+    }
+    {[0, 1, 2, 3].map (i) =>
       <line
         y1={20 + 20 * i}
         y2={20 + 20 * i}
@@ -62,8 +61,8 @@ const Network: NetworkComponent = props => (
         stroke-width="0.5"
         stroke="white"
       />
-    )}
-    {[0, 1, 2, 3, 4, 5].map(i =>
+    }
+    {[0, 1, 2, 3, 4, 5].map (i) =>
       <g style={{ transform: `translate(15px, ${10 + 15 * i}%)` }}>
         <circle
           r="5"
@@ -73,9 +72,8 @@ const Network: NetworkComponent = props => (
           onPointerLeave={() => props.selectInput(null)}
         />
         <Neuron idx={i} />
-      </g>
-    )}
-    {[0, 1, 2, 3, 4, 5].map(i =>
+    }
+    {[0, 1, 2, 3, 4, 5].map (i) =>
       <g style={{ transform: `translate(60px, ${10 + 15 * i}%)` }}>
         <circle
           r="5"
@@ -84,14 +82,13 @@ const Network: NetworkComponent = props => (
           onClick={() => props.openNeuronDialog(1, i)}
         />
         <Neuron idx={i + 6} />
-      </g>
-    )}
-    <Index each={props.final}>
+    }
+    <Index each=props.final>
       {(value, i) =>
-        <g style={{ transform: `translate(105px, ${20 + 20 * i}%)` }}>
+        <g style={transform: `translate(105px, ${20 + 20 * i}%)`}>
           <circle
             r="5"
-            fill={patternColors[i]}
+            fill=patternColors[i]
             class="cursor-pointer"
             onClick={() => props.openNeuronDialog(2, i)}
           />
@@ -102,11 +99,6 @@ const Network: NetworkComponent = props => (
             font-size="0.4rem"
           >
             {value() > 0 ? "✓" : "⨯"}
-          </text>
-        </g>
       }
-    </Index>
-  </svg>
-)
 
-export default Network;
+export default Network
