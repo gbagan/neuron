@@ -1,4 +1,4 @@
-import { MASK, Model, Pattern, State, updateOutput } from "./model.civet";
+import { MASK, Model, Pattern, State, updateOutput } from "./model.civet"
 
 STEP := 0.0001 // le pas dans le flot gradient
 COEFF := 0.7    // coef dans la fonction de coût d'erreur qui est une fonction exponentielle
@@ -38,12 +38,13 @@ export learnOneStep := (st: State, patterns: Pattern[], inputs: number[][], mask
               if mask[k][i]
                 for j .= 0; j < 4; j++
                   hiddenWeights2[k][i] -= STEP * dercost(final[j], symbol === j) * finalWeights[j][k] * input[i]
-  { iter: iter + 1,
-    finalThresholds: finalThresholds2,
-    finalWeights: finalWeights2,
-    hiddenThresholds: hiddenThresholds2,
-    hiddenWeights: hiddenWeights2,
-    output: [],
+  {
+    iter: iter + 1
+    finalThresholds: finalThresholds2
+    finalWeights: finalWeights2
+    hiddenThresholds: hiddenThresholds2
+    hiddenWeights: hiddenWeights2
+    output: []
   }
 
 export function runLearning(model: Model): State[]
@@ -51,7 +52,7 @@ export function runLearning(model: Model): State[]
   st .= model.states[0]
   inputs := model.inputs.map [...&]
   patterns := model.patterns.map {...&}
-  for (let i = 0; i < NB_ITERS; i++)
+  for i .= 0; i < NB_ITERS; i++
     if ITER_LIST.includes i
       res.push st
     st = learnOneStep st, patterns, inputs, MASK

@@ -43,7 +43,7 @@ export type Model =
   dialog: Dialog
   editMode: boolean
 
-export const MASK = [
+export MASK := [
   [1, 1, 1, 0, 0, 0]
   [1, 1, 0, 0, 0, 1]
   [0, 0, 1, 1, 1, 0]
@@ -89,9 +89,9 @@ export initPatterns := () => patternFns.map &()
 export countPixels := (i: number, pattern: boolean[]) =>
   pattern
   |> .map (b, j) =>
-    row := j / 18 | 0;
-    col := (j % 6) / 2 | 0;
-    b && (i < 3 ? col === i : row === i - 3) ? 1 : 0
+    row := j / 18 | 0
+    col := (j % 6) / 2 | 0
+    b && (if i < 3 then col === i else row === i - 3) |> Number
   |> sum
 
 // todo
@@ -120,17 +120,15 @@ export function rulerPositions(patterns: Pattern[], st: State, layer: number, j:
   values2 := values.map (& - minX) / (maxX - minX) // todo
   symbolsTmp := []
   n := patterns.length
-  for (let k = 0; k < n; k++) {
-    if (patterns[k].selected) {
-      symbolsTmp.push({ symbol: patterns[k].symbol, value: values2[k] })
-    }
-  }
+  for k .= 0; k < n; k++
+    if patterns[k].selected
+      symbolsTmp.push { symbol: patterns[k].symbol, value: values2[k] }
   symbolsTmp.sort (a, b) => a.value - b.value
 
   symbols: Symbol[] := []
   for { symbol, value } of symbolsTmp
-    const previousHeights = symbols.filter(value - &.x <= 0.049).map &.y
-    const y = firstAvailableHeight previousHeights
+    previousHeights := symbols.filter(value - &.x <= 0.049).map &.y
+    y := firstAvailableHeight previousHeights
     symbols.push { symbol, x: value, y }
 
   { zero: -minX / (maxX - minX), // todo
@@ -147,7 +145,7 @@ export function updateInput(patterns: Pattern[]): number[][] {
 
 export function updateOutput(inputs: number[][], st: State): Output
   inputs.map (input) =>
-    const hidden = zipWith st.hiddenThresholds, st.hiddenWeights, (t, hw) =>
+    hidden := zipWith st.hiddenThresholds, st.hiddenWeights, (t, hw) =>
       Math.max(0, scalarProduct(input, hw) - t)
     final := zipWith st.finalThresholds, st.finalWeights, (t, fw) =>
       scalarProduct(hidden, fw) - t
@@ -173,7 +171,7 @@ initState: => State := =>
   output: []
   iter: 0
 
-export const initModel: => Model = =>
+export initModel: => Model := =>
   patterns: initPatterns()
   inputs: []
   states: [initState()]

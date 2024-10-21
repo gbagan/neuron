@@ -1,4 +1,4 @@
-import { replicate } from "./util";
+import { replicate } from "./util.civet"
 
 export pattern01 := => [
   0, 0, 0, 0, 0, 0

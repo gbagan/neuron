@@ -26,21 +26,19 @@ type NetworkComponent = Component<{
   openNeuronDialog: (layer: number, idx: number) =>
 }>
 
-const Network: NetworkComponent = (props) =>
+Network: NetworkComponent := (props) =>
   <svg viewBox="0 0 135 100">
-    {MASK.map (row, i) =>
+    {MASK.flatMap (row, i) =>
       <>
         {row.map (v, j) =>
           v && <Line layer1=0 layer2=1 row1=j row2=i />
         }
-      </>
     }
     {[0, 1, 2, 3, 4, 5].map (i) =>
       <>
         {[0, 1, 2, 3].map (j) =>
           <Line layer1=1 layer2=2 row1=i row2=j />
         }
-      </>
     }
     {[0, 1, 2, 3, 4, 5].map (i) =>
       <line
@@ -68,8 +66,8 @@ const Network: NetworkComponent = (props) =>
           r="5"
           fill="white"
           class="touch-none"
-          onPointerEnter={() => props.selectInput(i)}
-          onPointerLeave={() => props.selectInput(null)}
+          onPointerEnter=[props.selectInput, i]
+          onPointerLeave=[props.selectInput, null]
         />
         <Neuron idx={i} />
     }

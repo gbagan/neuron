@@ -10,7 +10,7 @@ type RulerComponent = Component<{
   small: boolean,
 }>
 
-const Ruler: RulerComponent = (props) =>
+Ruler: RulerComponent := (props) =>
   positions := createMemo => rulerPositions props.patterns, props.state, props.layer, props.idx
 
   <div

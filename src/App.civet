@@ -10,8 +10,8 @@ import NeuronDialog from './components/NeuronDialog.civet'
 import { delay } from './util.civet'
 
 App: Component := =>
-  [model, setModel] := createStore(initModel());
-  let dialog!: HTMLDialogElement;
+  [model, setModel] := createStore initModel()
+  let dialog!: HTMLDialogElement
 
   output := => model.states[model.currentState].output
   final := () => output()[model.currentPattern].final
@@ -111,7 +111,7 @@ App: Component := =>
     closeDialog
   }
 
-  const allNeuronsActions = {
+  allNeuronsActions := {
     learn
     changeCurrentState
     runSimulation
