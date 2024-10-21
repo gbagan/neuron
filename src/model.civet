@@ -1,8 +1,4 @@
-import sum from "lodash.sum"
-import min from "lodash.min"
-import max from "lodash.max"
-import range from "lodash.range"
-import { scalarProduct, zipWith } from "./util.civet"
+import { scalarProduct, sum, zipWith } from "./util.civet"
 import {
   emptyPattern, pattern01, pattern02, pattern03, pattern04, pattern31,
   pattern32, pattern33, pattern34, pattern61, pattern62, pattern63,
@@ -95,7 +91,7 @@ export countPixels := (i: number, pattern: boolean[]) =>
   |> .map (b, j) =>
     row := j / 18 | 0;
     col := (j % 6) / 2 | 0;
-    b && (i < 3 ? col === i : row === i - 3)
+    b && (i < 3 ? col === i : row === i - 3) ? 1 : 0
   |> sum
 
 // todo
@@ -119,8 +115,8 @@ type RulerPositions =
 
 export function rulerPositions(patterns: Pattern[], st: State, layer: number, j: number): RulerPositions
   values := st.output.map { hidden, final } => if layer === 1 then hidden[j] else final[j]
-  minX := min(values) ?? 0
-  maxX := max(values) ?? 0
+  minX := Math.min(...values) ?? 0
+  maxX := Math.max(...values) ?? 0
   values2 := values.map (& - minX) / (maxX - minX) // todo
   symbolsTmp := []
   n := patterns.length
@@ -139,7 +135,7 @@ export function rulerPositions(patterns: Pattern[], st: State, layer: number, j:
 
   { zero: -minX / (maxX - minX), // todo
     symbols,
-    graduation: range(Math.floor(minX), Math.ceil(maxX) + 1)
+    graduation: [Math.floor(minX) .. Math.ceil(maxX)]
       .map { value: &, x: (& - minX) / (maxX - minX) }
   }
 

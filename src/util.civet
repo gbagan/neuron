@@ -3,6 +3,14 @@ export function replicate<A>(n: number, val: A): A[]
   a.fill val
   a
 
+export sum := (xs: number[]) =>
+  total .= 0
+  n := xs.length
+  for i .= 0; i < n; i++
+    x := xs[i]
+    total += x
+  total
+
 export scalarProduct := (xs: number[], ys: number[]) =>
   res .= 0;
   n := xs.length;
