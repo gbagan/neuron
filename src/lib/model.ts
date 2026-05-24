@@ -1,5 +1,5 @@
-import { count, filterMap, range, sum } from "@gbagan/utils";
-import { scalarProduct, zipWith } from "./util";
+import { count, filterMap, range, zipWith } from "@gbagan/utils";
+import { scalarProduct } from "./util";
 import {
   emptyPattern, pattern01, pattern02, pattern03, pattern04, pattern31,
   pattern32, pattern33, pattern34, pattern61, pattern62, pattern63,

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { update } from './lib/util';
-  import { sleep } from '@gbagan/utils';
+  import { set, sleep, update } from '@gbagan/utils';
   import { type Dialog, initPatterns, initState, type NDialog, type State, updateInput, updateOutput } from './lib/model';
   import { runLearning } from './lib/learn';
   import PatternView from './components/Pattern.svelte';
@@ -88,13 +87,13 @@
   }
 
   function changeWeight(layer: number, i: number, j: number, val: number) {
-    states = update(states, [currentState, layer === 1 ? "hiddenWeights" : "finalWeights", i, j], () => val);
+    states = set(states, [currentState, layer === 1 ? "hiddenWeights" : "finalWeights", i, j], val);
     keepOneState();
     simulate();
   }
 
   function changeThreshold(layer: number, i: number, val: number) {
-    states = update(states, [currentState, layer === 1 ? "hiddenThresholds" : "finalThresholds", i], () => val);
+    states = set(states, [currentState, layer === 1 ? "hiddenThresholds" : "finalThresholds", i], val);
     keepOneState();
     simulate();
   }
