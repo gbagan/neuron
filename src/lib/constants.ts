@@ -1,1 +1,1 @@
-export const PATTERN_COLORS = ["#A3E635", "#60A5FA", "#EC4899", "#FACC15"];
+export const PATTERN_COLORS = ["var(--lime-400)", "var(--blue-400)", "var(--pink-500)", "var(--yellow-400)"];

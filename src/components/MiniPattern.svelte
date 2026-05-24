@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Pattern } from "../lib/model";
-  const COLORS = ["var(--green-400)", "var(--blue-400)", "var(--pink-500)", "var(--yellow-400)"];
+  import { PATTERN_COLORS } from "../lib/constants";
 
   type Props = {
     pattern: Pattern;
@@ -15,7 +15,7 @@
   {#each pattern.pattern as b, i}
     <div
       class="pixel"
-      style:background-color={b ? COLORS[pattern.symbol] : "white"}
+      style:background-color={b ? PATTERN_COLORS[pattern.symbol] : "white"}
       style:left="{(i % 6) * 100 / 6}%"
       style:top="{(i / 6 | 0) * 100  / 9}%"
     ></div>
