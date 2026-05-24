@@ -1,6 +1,6 @@
 <script lang="ts">
   import { set, sleep, update } from '@gbagan/utils';
-  import { type Dialog, initPatterns, initState, type State, updateInput, updateOutput } from './lib/model';
+  import { type Dialog, initPatterns, initState, type Matrix, type State, updateInput, updateOutput } from './lib/model';
   import { runLearning } from './lib/learn';
   import PatternView from './components/Pattern.svelte';
   import Network from './components/Network.svelte';

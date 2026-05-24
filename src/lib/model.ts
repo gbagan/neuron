@@ -48,38 +48,35 @@ export const MASK: Mask = [
   [0, 0, 0, 1, 1, 1]
 ].map(row => row.map(b => b === 1));
 
-export const patternFns: (() => Pattern)[] = [
-  () => ({ symbol: 0, pattern: pattern01(), selected: true }),
-  () => ({ symbol: 0, pattern: pattern02(), selected: true }),
-  () => ({ symbol: 0, pattern: pattern03(), selected: true }),
-  () => ({ symbol: 0, pattern: pattern04(), selected: true }),
-  () => ({ symbol: 0, pattern: emptyPattern(), selected: false }),
-  () => ({ symbol: 0, pattern: emptyPattern(), selected: false }),
+export const initPatterns: Pattern[] = [
+  { symbol: 0, pattern: pattern01(), selected: true },
+  { symbol: 0, pattern: pattern02(), selected: true },
+  { symbol: 0, pattern: pattern03(), selected: true },
+  { symbol: 0, pattern: pattern04(), selected: true },
+  { symbol: 0, pattern: emptyPattern(), selected: false },
+  { symbol: 0, pattern: emptyPattern(), selected: false },
 
-  () => ({ symbol: 1, pattern: pattern31(), selected: true }),
-  () => ({ symbol: 1, pattern: pattern32(), selected: true }),
-  () => ({ symbol: 1, pattern: pattern33(), selected: true }),
-  () => ({ symbol: 1, pattern: pattern34(), selected: true }),
-  () => ({ symbol: 1, pattern: emptyPattern(), selected: false }),
-  () => ({ symbol: 1, pattern: emptyPattern(), selected: false }),
+  { symbol: 1, pattern: pattern31(), selected: true },
+  { symbol: 1, pattern: pattern32(), selected: true },
+  { symbol: 1, pattern: pattern33(), selected: true },
+  { symbol: 1, pattern: pattern34(), selected: true },
+  { symbol: 1, pattern: emptyPattern(), selected: false },
+  { symbol: 1, pattern: emptyPattern(), selected: false },
 
-  () => ({ symbol: 2, pattern: pattern61(), selected: true }),
-  () => ({ symbol: 2, pattern: pattern62(), selected: true }),
-  () => ({ symbol: 2, pattern: pattern63(), selected: true }),
-  () => ({ symbol: 2, pattern: pattern64(), selected: true }),
-  () => ({ symbol: 2, pattern: emptyPattern(), selected: false }),
-  () => ({ symbol: 2, pattern: emptyPattern(), selected: false }),
+  { symbol: 2, pattern: pattern61(), selected: true },
+  { symbol: 2, pattern: pattern62(), selected: true },
+  { symbol: 2, pattern: pattern63(), selected: true },
+  { symbol: 2, pattern: pattern64(), selected: true },
+  { symbol: 2, pattern: emptyPattern(), selected: false },
+  { symbol: 2, pattern: emptyPattern(), selected: false },
 
-  () => ({ symbol: 3, pattern: pattern91(), selected: true }),
-  () => ({ symbol: 3, pattern: pattern92(), selected: true }),
-  () => ({ symbol: 3, pattern: pattern93(), selected: true }),
-  () => ({ symbol: 3, pattern: pattern94(), selected: true }),
-  () => ({ symbol: 3, pattern: emptyPattern(), selected: false }),
-  () => ({ symbol: 3, pattern: emptyPattern(), selected: false })
+  { symbol: 3, pattern: pattern91(), selected: true },
+  { symbol: 3, pattern: pattern92(), selected: true },
+  { symbol: 3, pattern: pattern93(), selected: true },
+  { symbol: 3, pattern: pattern94(), selected: true },
+  { symbol: 3, pattern: emptyPattern(), selected: false },
+  { symbol: 3, pattern: emptyPattern(), selected: false }
 ]
-
-
-export const initPatterns = patternFns.map(f => f());
 
 // compte le nombre de pixels que capte le neurone d'entrée i sur un pattern donné
 export const countPixels = (i: number, pattern: readonly boolean[]) =>
