@@ -39,19 +39,7 @@ export type Dialog = {
   readonly type: "none" | "edit" | "neurons"
 } | NDialog;
 
-/*
-export type Model =
-  patterns: Pattern[]
-  inputs: number[][]
-  states: State[]
-  currentPattern: number
-  currentState: number
-  selectedInput: number | null
-  dialog: Dialog
-  editMode: boolean
-*/
-
-export const MASK = [
+export const MASK: Mask = [
   [1, 1, 1, 0, 0, 0],
   [1, 1, 0, 0, 0, 1],
   [0, 0, 1, 1, 1, 0],
@@ -157,7 +145,7 @@ export function updateInput(patterns: readonly Pattern[]): number[][] {
   )
 }
 
-export function updateOutput(inputs: number[][], st: State): Output {
+export function updateOutput(inputs: Matrix, st: State): Output {
   return inputs.map(input => {
     const hidden = zipWith(st.hiddenThresholds, st.hiddenWeights, (t, hw) =>
       Math.max(0, scalarProduct(input, hw) - t)

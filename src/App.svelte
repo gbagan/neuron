@@ -9,7 +9,7 @@
   import NeuronDialog from './components/NeuronDialog.svelte';
 
   let patterns = $state.raw(initPatterns);
-  let inputs: number[][] = $state.raw([]);
+  let inputs: Matrix = $state.raw([]);
   let states: State[] = $state.raw([initState]);
   let currentState = $state.raw(0);
   let currentPattern = $state.raw(0);
