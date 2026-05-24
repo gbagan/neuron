@@ -1,6 +1,6 @@
 <script lang="ts">
   import { set, sleep, update } from '@gbagan/utils';
-  import { type Dialog, initPatterns, initState, type NDialog, type State, updateInput, updateOutput } from './lib/model';
+  import { type Dialog, initPatterns, initState, type State, updateInput, updateOutput } from './lib/model';
   import { runLearning } from './lib/learn';
   import PatternView from './components/Pattern.svelte';
   import Network from './components/Network.svelte';
@@ -14,7 +14,6 @@
   let currentState = $state(0);
   let currentPattern = $state(0);
   let selectedInput: number | null = $state(null);
-  let editMode = $state(false);
   let dialog: Dialog = $state.raw({ type: "none" });
 
   let dialogEl!: HTMLDialogElement;
@@ -27,12 +26,10 @@
     states = states.map(st => ({...st, output: updateOutput(inputs, st)}));
   }
 
-  simulate();
-
   function keepOneState() {
-    let newState = states[currentState];
-    newState = {...newState, iter: 0};
-    states = [newState];
+    let state = states[currentState];
+    state = {...state, iter: 0};
+    states = [state];
     currentState = 0;
   }
 
@@ -78,7 +75,7 @@
 
   function changePixel(i: number) {
     patterns = update(patterns, [currentPattern, "pattern", i], x => !x);
-    simulate()
+    simulate();
   }
 
   function resetPatterns() {
@@ -113,7 +110,6 @@
     currentState = 0;
     currentPattern = 0;
     selectedInput = null;
-    editMode = false;
     dialog = { type: "none" };
     simulate();
   }
@@ -125,6 +121,8 @@
       await sleep(1500);
     }
   }
+
+  simulate();
 </script>
 
 <div class="app">
