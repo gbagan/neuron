@@ -1,0 +1,1 @@
+[ ] Dans la boite de dialogue des patterns, les patterns de la ligne 2 et 3 n'apparaissent pas

@@ -1,0 +1,1 @@
+export const PATTERN_COLORS = ["#A3E635", "#60A5FA", "#EC4899", "#FACC15"];

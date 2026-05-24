@@ -1,0 +1,151 @@
+:root {
+  --amber-400: #fbbf24;
+  --amber-700: #b45309;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --cyan-400: #22d3ee;
+  --fuchsia-400: #e879f9;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --indigo-400:  #818cf8;
+  --indigo-600: #534ab7;
+  --lime-300: #bef264;
+  --lime-400: #a3e635;
+  --orange-500: #f97316;
+  --pink-500: #ec4899;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --sky-400: #38bdf8;
+  --slate-400: #94a3b8;
+  --yellow-300: #fde047;
+  --yellow-400: #facc15;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  --bg: #fff;
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+  --text: var(--gray-900);
+  --border: var(--gray-300);
+
+  font: 1vmax var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*, :before, :after {
+  box-sizing: border-box;
+  border-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+}
+
+.btn {
+  border-radius: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 1.25rem;
+  text-align: center;
+  background-color: var(--blue-600);
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: var(--blue-700);
+}
+
+.btn:focus {
+  box-shadow: 0 0 0 4px rgb(37 99 235 / 0.5);
+  outline: none;
+}
+
+.dialog {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  max-width: 90vw;
+  border-radius: 0.5rem;
+  background-color: var(--gray-900);
+  color: #ffffff;
+  border: 2px solid var(--gray-400);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.dialog::backdrop {
+  background-color: rgb(107 114 128 / 0.7);
+}
+
+.dialog-title {
+  padding: 1rem;
+  min-height: 2rem;
+  border-bottom: 2px solid var(--gray-400);
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 500;
+}
+
+.dialog-body {
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--gray-400);
+}
+
+.dialog-buttons {
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.input-number {
+  color: #ffffff;
+  display: inline-block;
+  border: 1px solid var(--gray-600);
+  border-radius: 0.5rem;
+  padding: 0.625rem;
+  background-color: var(--gray-700);
+  font-size: 1.125rem;
+  width: 8rem;
+}
+
+.input-number::placeholder {
+  color: var(--gray-400);
+}
+
+.input-number:focus {
+  outline: 1px solid var(--blue-500);
+  border-color: var(--blue-500);
+}
+
+.input-range {
+  width: 100%;
+  height: 1rem;
+  background-color: var(--gray-700);
+  border-radius: 0.5rem;
+  appearance: none;
+  cursor: pointer;
+}
