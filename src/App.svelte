@@ -11,9 +11,9 @@
   let patterns = $state.raw(initPatterns);
   let inputs: number[][] = $state.raw([]);
   let states: State[] = $state.raw([initState]);
-  let currentState = $state(0);
-  let currentPattern = $state(0);
-  let selectedInput: number | null = $state(null);
+  let currentState = $state.raw(0);
+  let currentPattern = $state.raw(0);
+  let selectedInput: number | null = $state.raw(null);
   let dialog: Dialog = $state.raw({ type: "none" });
 
   let dialogEl!: HTMLDialogElement;

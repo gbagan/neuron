@@ -3,7 +3,7 @@
   import { PATTERN_COLORS } from "../lib/constants";
 
   type Props = {
-    patterns: Pattern[],
+    patterns: readonly Pattern[],
     state: State,
     layer: number,
     idx: number,

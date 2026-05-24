@@ -23,7 +23,7 @@
   let { layer, idx, state: st, patterns, nbStates, stateIdx, learn,
     changeCurrentState, changeWeight, changeThreshold, closeDialog }: Props = $props();
 
-  let editMode = $state(false);
+  let editMode = $state.raw(false);
 
   let title = $derived("Neurone " + (layer === 1 ? ALPHABET[idx] : COLORS[idx]))
 

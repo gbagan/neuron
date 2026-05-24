@@ -4,7 +4,7 @@
   import Neuron from "./Neuron.svelte";
 
   type Props = {
-    final: number[];
+    final: readonly number[];
     selectInput: (i: number | null) => void;
     openNeuronDialog: (layer: number, idx: number) => void;
   }

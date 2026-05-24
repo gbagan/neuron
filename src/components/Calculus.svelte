@@ -3,7 +3,7 @@
 
   type Props = {
     editMode: boolean;
-    weights: number[];
+    weights: readonly number[];
     threshold: number;
     layer: number;
     changeWeight: (idx: number, val: number) => void;

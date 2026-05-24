@@ -6,34 +6,37 @@ import {
   pattern64, pattern91, pattern92, pattern93, pattern94
 } from "./patterns";
 
+export type Matrix = readonly (readonly number[])[];
+export type Mask = readonly (readonly boolean[])[];
+
 export type Pattern = {
-  symbol: number;
-  pattern: boolean[];
-  selected: boolean;
+  readonly symbol: number;
+  readonly pattern: readonly boolean[];
+  readonly selected: boolean;
 }
 
 type Output = {
-  hidden: number[],
-  final: number[]
+  readonly hidden: readonly number[],
+  readonly final: readonly number[]
 }[];
 
 export type State = {
-  hiddenThresholds: number[];
-  hiddenWeights: number[][];
-  finalThresholds: number[];
-  finalWeights: number[][];
-  output: Output;
-  iter: number;
+  readonly hiddenThresholds: readonly number[];
+  readonly hiddenWeights: Matrix;
+  readonly finalThresholds: readonly number[];
+  readonly finalWeights: Matrix;
+  readonly output: Output;
+  readonly iter: number;
 }
 
 export type NDialog = {
-  type: "neuron";
-  layer: number;
-  idx: number;
+  readonly type: "neuron";
+  readonly layer: number;
+  readonly idx: number;
 }
 
 export type Dialog = {
-  type: "none" | "edit" | "neurons"
+  readonly type: "none" | "edit" | "neurons"
 } | NDialog;
 
 /*
@@ -91,7 +94,7 @@ export const patternFns: (() => Pattern)[] = [
 export const initPatterns = patternFns.map(f => f());
 
 // compte le nombre de pixels que capte le neurone d'entrée i sur un pattern donné
-export const countPixels = (i: number, pattern: boolean[]) =>
+export const countPixels = (i: number, pattern: readonly boolean[]) =>
   count(pattern, (b, j) => {
     const row = j / 18 | 0
     const col = (j % 6) / 2 | 0
@@ -100,7 +103,7 @@ export const countPixels = (i: number, pattern: boolean[]) =>
 
 // todo
 // firstAvailableHeight([0, 1, 2, 4, 6, 7]) === 3
-export function firstAvailableHeight(xs: number[]) {
+export function firstAvailableHeight(xs: readonly number[]) {
   let i = 0;
   while(true) {
     if (!xs.includes(i)) {
@@ -111,18 +114,18 @@ export function firstAvailableHeight(xs: number[]) {
 }
 
 type Symbol = {
-  symbol: number;
-  x: number;
-  y: number;
+  readonly symbol: number;
+  readonly x: number;
+  readonly y: number;
 }
 
 type RulerPositions = {
-  zero: number;
-  symbols: Symbol[];
-  graduation: { value: number, x: number }[];
+  readonly zero: number;
+  readonly symbols: Symbol[];
+  readonly graduation: readonly { readonly value: number, readonly x: number}[];
 }
 
-export function rulerPositions(patterns: Pattern[], st: State, layer: number, j: number): RulerPositions {
+export function rulerPositions(patterns: readonly Pattern[], st: State, layer: number, j: number): RulerPositions {
   const values = st.output.map(({ hidden, final }) => layer === 1 ? hidden[j] : final[j]);
   const minX = Math.min(...values) ?? 0; // todo Math.min returns Infinity
   const maxX = Math.max(...values) ?? 0; // todo
@@ -148,7 +151,7 @@ export function rulerPositions(patterns: Pattern[], st: State, layer: number, j:
 }
 
 // calcule la valeur des neuronnes d'entrée à partir d'une liste de patterns
-export function updateInput(patterns: Pattern[]): number[][] {
+export function updateInput(patterns: readonly Pattern[]): number[][] {
   return patterns.map(({ pattern }) =>
     [0, 1, 2, 3, 4, 5].map(i => countPixels(i, pattern))
   )

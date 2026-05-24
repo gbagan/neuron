@@ -4,7 +4,7 @@
 
   type Props = {
     state: State;
-    patterns: Pattern[];
+    patterns: readonly Pattern[];
     nbStates: number;
     stateIdx: number;
     learn: () => void;

@@ -3,7 +3,7 @@
   import MiniPattern from "./MiniPattern.svelte";
 
   type Props = {
-    patterns: Pattern[]
+    patterns: readonly Pattern[]
     currentPattern: number
     setCurrentPattern: (i: number) => void;
     togglePattern: (i: number) => void;

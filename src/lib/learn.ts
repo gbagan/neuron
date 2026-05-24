@@ -7,7 +7,7 @@ const ITER_LIST = [0, 100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000, 100
 
 const dercost = (x: number, b: boolean) => b ? -COEFF * Math.exp(-COEFF * x) : COEFF * Math.exp(COEFF * x);
 
-export function learnOneStep(st: State, patterns: Pattern[], inputs: number[][], mask: boolean[][]): State {
+export function learnOneStep(st: State, patterns: readonly Pattern[], inputs: readonly number[][], mask: readonly boolean[][]): State {
   const { iter, hiddenThresholds, hiddenWeights, finalThresholds, finalWeights, output } = st;
   const finalThresholds2 = [...finalThresholds];
   const finalWeights2 = finalWeights.map(x => [...x]);
@@ -61,7 +61,7 @@ export function learnOneStep(st: State, patterns: Pattern[], inputs: number[][],
   }
 }
 
-export function runLearning(inputs: number[][], state: State, patterns: Pattern[]): State[] {
+export function runLearning(inputs: number[][], state: State, patterns: readonly Pattern[]): State[] {
   const res = [];
   let st = state;
   for (let i = 0; i < NB_ITERS; i++) {
@@ -69,7 +69,7 @@ export function runLearning(inputs: number[][], state: State, patterns: Pattern[
       res.push(st);
     }
     st = learnOneStep(st, patterns, inputs, MASK)
-    st.output = updateOutput(inputs, st);
+    st = {...st, output: updateOutput(inputs, st)};
   }
   res.push(st);
   return res
