@@ -40,11 +40,12 @@
       {/each}
     </span>
   {:else}
-    <span>
+    {@const firstIdx = weights.findIndex(w => w !== 0)}
+    <span>    
       {#each weights as weight, i}
         {#if weight !== 0}
-          {i > 0 && weight > 0 ? "+" : ""}
-          {weightToString(weight)}
+          {i !== firstIdx && weight > 0 ? " +" : weight < 0 ? " -" : ""}
+          {weightToString(Math.abs(weight))}
           {@render icon((layer === 2 ? 6 : 0) + i)}
         {/if}
       {/each}
