@@ -1,9 +1,9 @@
 import { count, filterMap, range, zipWith } from "@gbagan/utils";
 import { scalarProduct } from "./util";
 import {
-  emptyPattern, pattern01, pattern02, pattern03, pattern04, pattern31,
-  pattern32, pattern33, pattern34, pattern61, pattern62, pattern63,
-  pattern64, pattern91, pattern92, pattern93, pattern94
+  emptyPattern, PATTERN01, PATTERN02, PATTERN03, PATTERN04, PATTERN31,
+  PATTERN32, PATTERN33, PATTERN34, PATTERN61, PATTERN62, PATTERN63,
+  PATTERN64, PATTERN91, PATTERN92, PATTERN93, PATTERN94
 } from "./patterns";
 
 export type Matrix = readonly (readonly number[])[];
@@ -49,33 +49,33 @@ export const MASK: Mask = [
 ].map(row => row.map(b => b === 1));
 
 export const initPatterns: Pattern[] = [
-  { symbol: 0, pattern: pattern01(), selected: true },
-  { symbol: 0, pattern: pattern02(), selected: true },
-  { symbol: 0, pattern: pattern03(), selected: true },
-  { symbol: 0, pattern: pattern04(), selected: true },
-  { symbol: 0, pattern: emptyPattern(), selected: false },
-  { symbol: 0, pattern: emptyPattern(), selected: false },
+  { symbol: 0, pattern: PATTERN01, selected: true },
+  { symbol: 0, pattern: PATTERN02, selected: true },
+  { symbol: 0, pattern: PATTERN03, selected: true },
+  { symbol: 0, pattern: PATTERN04, selected: true },
+  { symbol: 0, pattern: emptyPattern, selected: false },
+  { symbol: 0, pattern: emptyPattern, selected: false },
 
-  { symbol: 1, pattern: pattern31(), selected: true },
-  { symbol: 1, pattern: pattern32(), selected: true },
-  { symbol: 1, pattern: pattern33(), selected: true },
-  { symbol: 1, pattern: pattern34(), selected: true },
-  { symbol: 1, pattern: emptyPattern(), selected: false },
-  { symbol: 1, pattern: emptyPattern(), selected: false },
+  { symbol: 1, pattern: PATTERN31, selected: true },
+  { symbol: 1, pattern: PATTERN32, selected: true },
+  { symbol: 1, pattern: PATTERN33, selected: true },
+  { symbol: 1, pattern: PATTERN34, selected: true },
+  { symbol: 1, pattern: emptyPattern, selected: false },
+  { symbol: 1, pattern: emptyPattern, selected: false },
 
-  { symbol: 2, pattern: pattern61(), selected: true },
-  { symbol: 2, pattern: pattern62(), selected: true },
-  { symbol: 2, pattern: pattern63(), selected: true },
-  { symbol: 2, pattern: pattern64(), selected: true },
-  { symbol: 2, pattern: emptyPattern(), selected: false },
-  { symbol: 2, pattern: emptyPattern(), selected: false },
+  { symbol: 2, pattern: PATTERN61, selected: true },
+  { symbol: 2, pattern: PATTERN62, selected: true },
+  { symbol: 2, pattern: PATTERN63, selected: true },
+  { symbol: 2, pattern: PATTERN64, selected: true },
+  { symbol: 2, pattern: emptyPattern, selected: false },
+  { symbol: 2, pattern: emptyPattern, selected: false },
 
-  { symbol: 3, pattern: pattern91(), selected: true },
-  { symbol: 3, pattern: pattern92(), selected: true },
-  { symbol: 3, pattern: pattern93(), selected: true },
-  { symbol: 3, pattern: pattern94(), selected: true },
-  { symbol: 3, pattern: emptyPattern(), selected: false },
-  { symbol: 3, pattern: emptyPattern(), selected: false }
+  { symbol: 3, pattern: PATTERN91, selected: true },
+  { symbol: 3, pattern: PATTERN92, selected: true },
+  { symbol: 3, pattern: PATTERN93, selected: true },
+  { symbol: 3, pattern: PATTERN94, selected: true },
+  { symbol: 3, pattern: emptyPattern, selected: false },
+  { symbol: 3, pattern: emptyPattern, selected: false }
 ]
 
 // compte le nombre de pixels que capte le neurone d'entrée i sur un pattern donné

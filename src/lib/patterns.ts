@@ -1,6 +1,6 @@
 import { arrayOf } from "@gbagan/utils";
 
-export const pattern01 = () => [
+export const PATTERN01 = [
   0, 0, 0, 0, 0, 0,
   0, 0, 1, 1, 1, 0,
   0, 1, 0, 0, 1, 1,
@@ -12,7 +12,7 @@ export const pattern01 = () => [
   0, 0, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const pattern02 = () => [
+export const PATTERN02 = [
   0, 0, 1, 1, 0, 0,
   0, 1, 1, 1, 1, 0,
   0, 1, 0, 0, 1, 0,
@@ -24,7 +24,7 @@ export const pattern02 = () => [
   0, 0, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const pattern03 = () => [
+export const PATTERN03 = [
   0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 0,
   0, 1, 0, 0, 1, 0,
@@ -36,7 +36,7 @@ export const pattern03 = () => [
   0, 0, 0, 0, 0, 0
 ].map(b => b === 1)
 
-export const pattern04 = () => [
+export const PATTERN04 = [
   0, 0, 0, 0, 0, 0,
   0, 0, 1, 1, 1, 0,
   0, 0, 1, 0, 1, 0,
@@ -48,7 +48,7 @@ export const pattern04 = () => [
   0, 0, 0, 0, 0, 0
 ].map(b => b === 1)
 
-export const pattern31 = () => [
+export const PATTERN31 = [
   0, 0, 0, 0, 0, 0,
   0, 0, 1, 1, 0, 0,
   0, 0, 0, 1, 0, 0,
@@ -60,7 +60,7 @@ export const pattern31 = () => [
   0, 1, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const pattern32 = () => [
+export const PATTERN32 = [
   0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 0,
   0, 0, 0, 1, 0, 0,
@@ -72,7 +72,7 @@ export const pattern32 = () => [
   0, 1, 1, 1, 1, 0
 ].map(b => b === 1)
 
-export const pattern33 = () => [
+export const PATTERN33 = [
   0, 1, 1, 1, 0, 0,
   0, 0, 0, 1, 1, 0,
   0, 0, 0, 1, 1, 0,
@@ -84,7 +84,7 @@ export const pattern33 = () => [
   0, 1, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const pattern34 = () => [
+export const PATTERN34 = [
   0, 0, 1, 1, 1, 0,
   0, 1, 1, 0, 1, 0,
   0, 0, 0, 0, 1, 0,
@@ -96,7 +96,7 @@ export const pattern34 = () => [
   0, 1, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const pattern61 = () => [
+export const PATTERN61 = [
   0, 0, 0, 1, 1, 0,
   0, 0, 1, 1, 0, 0,
   0, 0, 1, 0, 0, 0,
@@ -108,7 +108,7 @@ export const pattern61 = () => [
   0, 0, 0, 0, 0, 0
 ].map(b => b === 1)
 
-export const pattern62 = () => [
+export const PATTERN62 = [
   0, 0, 0, 0, 0, 0,
   0, 0, 0, 1, 1, 0,
   0, 0, 1, 1, 0, 0,
@@ -120,7 +120,7 @@ export const pattern62 = () => [
   0, 0, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const pattern63 = () => [
+export const PATTERN63 = [
   0, 0, 0, 0, 0, 0,
   0, 0, 1, 1, 1, 0,
   0, 1, 1, 0, 0, 0,
@@ -132,7 +132,7 @@ export const pattern63 = () => [
   0, 1, 1, 1, 1, 0
 ].map(b => b === 1)
 
-export const pattern64 = () => [
+export const PATTERN64 = [
   0, 0, 0, 0, 0, 0,
   0, 0, 0, 1, 1, 0,
   0, 0, 1, 1, 0, 0,
@@ -144,7 +144,7 @@ export const pattern64 = () => [
   0, 0, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const pattern91 = () => [
+export const PATTERN91 = [
   0, 0, 1, 1, 0, 0,
   0, 1, 0, 1, 0, 0,
   0, 1, 0, 1, 1, 0,
@@ -156,7 +156,7 @@ export const pattern91 = () => [
   0, 0, 1, 1, 1, 0
 ].map(b => b === 1)
 
-export const pattern92 = () => [
+export const PATTERN92 = [
   0, 0, 1, 1, 0, 0,
   0, 1, 0, 0, 1, 0,
   0, 1, 0, 1, 1, 0,
@@ -168,7 +168,7 @@ export const pattern92 = () => [
   0, 0, 1, 1, 1, 0
 ].map(b => b === 1)
 
-export const pattern93 = () => [
+export const PATTERN93 = [
   0, 0, 0, 0, 0, 0,
   0, 0, 1, 1, 1, 0,
   0, 1, 0, 0, 1, 0,
@@ -180,7 +180,7 @@ export const pattern93 = () => [
   0, 1, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const pattern94 = () => [
+export const PATTERN94 = [
   0, 0, 0, 0, 0, 0,
   0, 1, 1, 1, 1, 0,
   0, 1, 0, 0, 1, 0,
@@ -192,4 +192,4 @@ export const pattern94 = () => [
   0, 0, 1, 1, 0, 0
 ].map(b => b === 1)
 
-export const emptyPattern = () => arrayOf(54, false);
+export const emptyPattern = arrayOf(54, false);
