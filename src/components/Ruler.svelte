@@ -33,7 +33,7 @@
     {#each symbols as {x, y, symbol}}
       <g style:transform="translate({100 * x}px, {25 - 5 * y}px)">
         <rect x="-2.5" y="0" width="5" height="5" fill={PATTERN_COLORS[symbol]} />
-        <text x="-1" y="4.5" font-size="0.3rem">{symbol * 3}</text>
+        <text y="4.5" font-size="0.3rem" text-anchor="middle">{symbol * 3}</text>
       </g>
     {/each}
   </svg>

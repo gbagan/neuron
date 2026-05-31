@@ -181,7 +181,7 @@
   .app {
     width: 100%;
     min-height: 100vh;
-    background-color: var(--gray-900);
+    background-color: var(--bg);
     display: flex;
     flex-direction: row;
     align-items: center;

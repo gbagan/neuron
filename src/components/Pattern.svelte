@@ -2,7 +2,7 @@
   import { divMod } from "@gbagan/utils";
   import type { Pattern } from "../lib/model"
   
-  const COLORS = ["white", "black", "lightgreen", "darkgreen"];
+  const COLORS = ["white", "var(--slate-900)", "var(--green-200)", "var(--green-700)"];
   
   type Props = {
     selectedCaptor: number | null;

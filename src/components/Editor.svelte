@@ -23,7 +23,7 @@
       <button
         class="pixel"
         aria-label="pixel"
-        style:background={b ? "black" : "white"}
+        style:background={b ? "var(--slate-800)" : "white"}
         style:left="{100 * (i % 6) / 6}%"
         style:top="{100 * (i / 6 | 0) / 9}%"
         onclick={() => changePixel(i)}

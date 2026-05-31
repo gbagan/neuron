@@ -86,7 +86,6 @@ export const countPixels = (i: number, pattern: readonly boolean[]) =>
     return b && (i < 3 ? col === i : row === i - 3);
   });
 
-// todo
 // firstAvailableHeight([0, 1, 2, 4, 6, 7]) === 3
 export function firstAvailableHeight(xs: readonly number[]) {
   let i = 0;
@@ -112,9 +111,11 @@ type RulerPositions = {
 
 export function rulerPositions(patterns: readonly Pattern[], st: State, layer: number, j: number): RulerPositions {
   const values = st.output.map(({ hidden, final }) => layer === 1 ? hidden[j] : final[j]);
-  const minX = Math.min(...values) ?? 0; // todo Math.min returns Infinity
-  const maxX = Math.max(...values) ?? 0; // todo
-  const values2 = values.map(v => (v - minX) / (maxX - minX)); // todo
+  let minX = Math.min(...values);
+  let maxX = Math.max(...values);
+  if (minX === Infinity) minX = 0;
+  if (maxX === -Infinity) maxX = 0;
+  const values2 = values.map(v => minX === maxX ? 0 : (v - minX) / (maxX - minX));
   
   const symbolsTmp = filterMap(patterns, ({symbol, selected}, k) =>
     selected ? { symbol, value: values2[k] } : null
@@ -128,10 +129,10 @@ export function rulerPositions(patterns: readonly Pattern[], st: State, layer: n
   }
 
   return {
-    zero: -minX / (maxX - minX), // todo
+    zero: minX === maxX ? 0 : -minX / (maxX - minX),
     symbols,
     graduation: range(Math.floor(minX), Math.ceil(maxX)+1)
-      .map(value => ({ value, x: (value - minX) / (maxX - minX) }))
+      .map(value => ({ value, x: minX === maxX ? 0 : (value - minX) / (maxX - minX) }))
   }
 }
 
