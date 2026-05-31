@@ -78,7 +78,7 @@
 }
 
 .input-number {
-  color: #ffffff;
+  color: white;
   display: inline-block;
   border: 1px solid var(--gray-600);
   border-radius: 0.5rem;

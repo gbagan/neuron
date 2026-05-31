@@ -43,10 +43,10 @@
     changeThreshold={val => changeThreshold(layer, idx, val)}
   />
   <Ruler state={st} {patterns} {layer} {idx} small={false} />
-  <div class="largetext">Nombre d'itérations: {st.iter}</div>
+  <div class="iterations">Nombre d'itérations: {st.iter}</div>
   {#if nbStates > 1}
     <input
-      class="input-range range-lg"
+      class="input-range"
       type="range"
       min="0"
       max={nbStates - 1}
@@ -60,3 +60,10 @@
   <button class="btn" onclick={learn}>Apprendre</button>
   <button class="btn" onclick={closeDialog}>OK</button>
 </div>
+
+<style>
+  .iterations {
+    font-size: 1.75rem;
+  }
+
+</style>
